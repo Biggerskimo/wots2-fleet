@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -67,6 +68,7 @@ class FleetImpl implements EditableFleet {
 	@NotNull
 	@OneToMany(cascade = CascadeType.ALL)
 	@MapKey(name = "specId")
+	@JoinColumn(name = "fleetID")
 	protected Map<Integer, FleetSpec> specs = new HashMap<>();
 	
 	@Column(name = "missionID")
@@ -83,6 +85,12 @@ class FleetImpl implements EditableFleet {
 	protected int impactTime;
 	protected int returnEventId;
 	protected int returnTime;
+	
+	protected transient Map<FleetEventType, Event> events;
+	
+	public FleetImpl() {
+		events = new HashMap<>();
+	}
 	
 	// getter
 	@Override
@@ -129,7 +137,9 @@ class FleetImpl implements EditableFleet {
 	public Map<FleetEventType, Event> getEvents() {
 		ImmutableMap.Builder<FleetEventType, Event> builder = new ImmutableMap.Builder<>();
 		
-		if(impactEventId != null && impactEventId != 0) {
+		if(events.containsKey(DefaultEventTypes.IMPACT)) {
+			builder.put(DefaultEventTypes.IMPACT, events.get(DefaultEventTypes.IMPACT));
+		} else if(impactEventId != null && impactEventId != 0) {
 			builder.put(DefaultEventTypes.IMPACT, new Event() {
 				@Override
 				public int getId() {
@@ -152,32 +162,42 @@ class FleetImpl implements EditableFleet {
 				}
 			});
 		}
-		builder.put(DefaultEventTypes.RETURN, new Event() {
-			@Override
-			public int getId() {
-				return returnEventId;
-			}
-			
-			@Override
-			public DateTime getTime() {
-				return new DateTime((long) returnTime * 1000);
-			}
-			
-			@Override
-			public EventExecutor getExecutor() {
-				throw new UnsupportedOperationException();
-			}
-			
-			@Override
-			public int getRelationalId() {
-				return id;
-			}
-		});
+		if(events.containsKey(DefaultEventTypes.RETURN)) {
+			builder.put(DefaultEventTypes.RETURN, events.get(DefaultEventTypes.RETURN));
+		} else {
+			builder.put(DefaultEventTypes.RETURN, new Event() {
+				@Override
+				public int getId() {
+					return returnEventId;
+				}
+				
+				@Override
+				public DateTime getTime() {
+					return new DateTime((long) returnTime * 1000);
+				}
+				
+				@Override
+				public EventExecutor getExecutor() {
+					throw new UnsupportedOperationException();
+				}
+				
+				@Override
+				public int getRelationalId() {
+					return id;
+				}
+			});
+		}
 		
 		return builder.build();
 	}
 	
 	// setter
+	@Override
+	public void setSpecs(SpecSet<? extends FleetBound> specs) {
+		getSpecs().clear();
+		getSpecs().add(specs);
+	}
+	
 	@Override
 	public void setCoordinates(Coordinates coords) {
 		this.coords = new FleetCoordinates(coords);
@@ -204,8 +224,8 @@ class FleetImpl implements EditableFleet {
 	@Override
 	public void setTargetPlanet(Planet planet) {
 		if(planet == null) {
-			targetPlanetId = 0;
-			ofiaraId = 0;
+			targetPlanetId = null;
+			ofiaraId = null;
 		} else {
 			targetPlanetId = planet.getId();
 			ofiaraId = planet.getOwner().getId();
@@ -214,6 +234,7 @@ class FleetImpl implements EditableFleet {
 	
 	@Override
 	public void setEvent(FleetEventType type, Event event) {
+		events.put(type, event);
 		if(type == DefaultEventTypes.IMPACT) {
 			if(event == null) {
 				Events.delete(Events.findOne(impactEventId));
@@ -308,12 +329,24 @@ class FleetImpl implements EditableFleet {
 	protected class FleetSpecMapper implements SpecMapper {
 		@Override
 		public long getLevel(SpecPredicate predicate) {
-			return specs.get(predicate).getCount();
+			FleetSpec spec = specs.get(predicate.getId());
+			
+			if(spec == null) {
+				return 0;
+			} else {
+				return spec.getCount();
+			}
 		}
 		
 		@Override
 		public void setLevel(SpecPredicate predicate, long level) {
-			specs.get(predicate).setCount(level);
+			FleetSpec spec = specs.get(predicate);
+			
+			if(spec == null) {
+				specs.put(predicate.getId(), new FleetSpec(FleetImpl.this, predicate, level));
+			} else {
+				specs.get(predicate.getId()).setCount(level);
+			}
 		}
 	}
 }

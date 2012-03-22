@@ -49,7 +49,7 @@ public class FleetRepositoryImpl implements FleetRepository {
 	
 	@Override
 	public void update(EditableFleet fleet) {
-		
+		em.merge(fleet);
 	}
 	
 	@Override

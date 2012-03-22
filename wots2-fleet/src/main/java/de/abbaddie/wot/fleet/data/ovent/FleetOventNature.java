@@ -71,8 +71,14 @@ public class FleetOventNature implements OventNature {
 			Builder<ResourcePredicate, Double> resources = new Builder<>();
 			for(Entry<?, ?> entry : resourcesData.entrySet()) {
 				String name = (String) entry.getKey();
-				Double value = entry.getValue() instanceof Integer ? (double) (Integer) entry.getValue() : Double
-						.parseDouble((String) entry.getValue());
+				Double value;
+				if(entry.getValue() instanceof Integer) {
+					value = (double) (Integer) entry.getValue();
+				} else if(entry.getValue() instanceof Double) {
+					value = (Double) entry.getValue();
+				} else {
+					value = Double.parseDouble((String) entry.getValue());
+				}
 				ResourcePredicate predicate = getPredicateForName(name);
 				
 				resources.put(predicate, value);
@@ -150,9 +156,9 @@ public class FleetOventNature implements OventNature {
 			}
 			Map<Integer, String> specData = specDataBuilder.build();
 			
-			fleetData.set("fleetId", String.valueOf(fleet.getFleetId()));
-			fleetData.set("ownerId", String.valueOf(fleet.getOwnerId()));
-			fleetData.set("startPlanetId", String.valueOf(fleet.getStartPlanetId()));
+			fleetData.set("fleetID", String.valueOf(fleet.getFleetId()));
+			fleetData.set("ownerID", String.valueOf(fleet.getOwnerId()));
+			fleetData.set("startPlanetID", String.valueOf(fleet.getStartPlanetId()));
 			fleetData.set("resources", ImmutableMap.of("metal", fleet.getResources().getValue("metal"), "crystal",
 					fleet.getResources().getValue("crystal"), "deuterium", fleet.getResources().getValue("deuterium")));
 			fleetData.set(
@@ -163,19 +169,19 @@ public class FleetOventNature implements OventNature {
 					"targetCoords",
 					ImmutableMap.of(0, String.valueOf(tc.getGalaxy()), 1, String.valueOf(tc.getSystem()), 2,
 							String.valueOf(tc.getOrbit()), 3, String.valueOf(tc.getKind())));
-			fleetData.set("specs", specData);
+			fleetData.set("spec", specData);
 			fleetData.set("cssClass", fleet.getCssClass());
-			fleetData.set("missionId", fleet.getMissionId());
+			fleetData.set("missionID", String.valueOf(fleet.getMissionId()));
 			fleetData.set("startPlanetName", fleet.getStartPlanetName());
 			fleetData.set("passage", fleet.getPassage());
 			
-			fleetData.set("ofiaraId", fleet.getOfiaraId() > 0 ? String.valueOf(fleet.getOfiaraId()) : null);
-			fleetData.set("targetPlanetId", fleet.getTargetPlanetId() > 0 ? String.valueOf(fleet.getTargetPlanetId())
+			fleetData.set("ofiaraID", fleet.getOfiaraId() > 0 ? String.valueOf(fleet.getOfiaraId()) : null);
+			fleetData.set("targetPlanetID", fleet.getTargetPlanetId() > 0 ? String.valueOf(fleet.getTargetPlanetId())
 					: null);
 			fleetData.set("targetPlanetName", fleet.getTargetPlanetName());
 		}
 		
-		return Parser.toString(all);
+		return "a" + Parser.toString(all);
 	}
 	
 	protected ResourcePredicate getPredicateForName(String name) {

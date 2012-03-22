@@ -2,7 +2,6 @@ package de.abbaddie.wot.fleet.data.mission;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.ConstraintValidatorContext;
 
 import de.abbaddie.wot.fleet.data.start.FleetStarter;
 
@@ -14,7 +13,7 @@ public class MissileAttack extends Mission {
 	}
 	
 	@Override
-	public boolean validate(FleetStarter starter, ConstraintValidatorContext context) {
-		return false;
+	public String validate(FleetStarter starter) {
+		return "Direkte Interplanetarraketenangriffe sind nicht erlaubt.";
 	}
 }

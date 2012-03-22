@@ -51,7 +51,7 @@ public interface FleetStarter extends CoordinatesContainer, ResourceContainer, S
 	
 	public int getMissionId();
 	
-	public Map<String, Double> getResourceCounts();
+	public Map<String, String> getResourceCounts();
 	
 	public double getSpeedFactor();
 	

@@ -17,8 +17,8 @@ import de.abbaddie.wot.fleet.data.start.FleetStarter;
 import de.abbaddie.wot.fleet.web.lib.FleetstartResponsePart;
 import de.abbaddie.wot.fleet.web.lib.FleetstartResultResponsePart;
 import de.abbaddie.wot.web.LoggedInController;
-import de.abbaddie.wot.web.lib.ActionResultResponsePart;
 import de.abbaddie.wot.web.lib.JsonResponse;
+import de.abbaddie.wot.web.lib.JsonResponsePart;
 
 @Controller
 @RequestMapping("/ajax")
@@ -47,7 +47,10 @@ public class FleetStart extends LoggedInController {
 			result = starter.validateAndFire();
 		}
 		
-		ActionResultResponsePart part = new FleetstartResultResponsePart(result);
+		JsonResponsePart part = new FleetstartResultResponsePart(result);
+		resp.addPart(part);
+		
+		part = new FleetstartResponsePart(getFleetSpecs());
 		resp.addPart(part);
 		
 		return resp;

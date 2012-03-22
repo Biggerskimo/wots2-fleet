@@ -64,8 +64,7 @@ var WotFleetlist = {
 	}
 };
 WotHandler.addModule("fleetlist", {
-	requestHandler: { fleetlist: WotFleetlist.fleetlistHandler,
-		fleetlistCancelResult: WotLib.getActionResultHandler("Die Flotte wurde zurückgerufen.") },
+	requestHandler: { fleetlist: WotFleetlist.fleetlistHandler },
 	navigationLink: { Flottenliste: "fleetlist" },
 	page : { fleetlist: WotFleetlist }
 });

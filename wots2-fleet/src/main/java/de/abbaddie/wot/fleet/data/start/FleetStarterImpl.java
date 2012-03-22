@@ -26,6 +26,7 @@ import de.abbaddie.wot.data.coordinates.Coordinates;
 import de.abbaddie.wot.data.coordinates.DynamicCoordinates;
 import de.abbaddie.wot.data.event.EditableEvent;
 import de.abbaddie.wot.data.event.Events;
+import de.abbaddie.wot.data.planet.EditablePlanet;
 import de.abbaddie.wot.data.planet.Planet;
 import de.abbaddie.wot.data.planet.Planets;
 import de.abbaddie.wot.data.resource.CrystalResource;
@@ -68,7 +69,7 @@ public class FleetStarterImpl implements FleetStarter {
 	protected Map<String, String> levels;
 	
 	protected ResourceValueSet resourceSet;
-	protected Map<String, Double> resourceCounts;
+	protected Map<String, String> resourceCounts;
 	
 	@NotNull(message = "Es wurde kein Startplanet gesetzt.")
 	protected Planet startPlanet;
@@ -88,8 +89,8 @@ public class FleetStarterImpl implements FleetStarter {
 		specs = Specs.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
 		
 		resourceCounts = new HashMap<>();
-		resourceSet = Resources
-				.generateDynamic(getAllowedResourcePredicates(), Resources.convertToHard(resourceCounts));
+		resourceSet = Resources.generateDynamic(getAllowedResourcePredicates(),
+				Resources.convertToHardByStr(resourceCounts));
 		
 		coordinates = new FleetStartCoordinates(0, 0, 0, 0);
 	}
@@ -113,6 +114,8 @@ public class FleetStarterImpl implements FleetStarter {
 	@Override
 	@Transactional
 	public void fire() {
+		EditablePlanet planet = (EditablePlanet) getStartPlanet();
+		
 		DateTime now = DateTime.now();
 		
 		EditableEvent impactEvent = Events.create();
@@ -128,6 +131,7 @@ public class FleetStarterImpl implements FleetStarter {
 		em.flush();
 		
 		EditableFleet fleet = Fleets.create();
+		fleet.setSpecs(getSpecs());
 		fleet.setCoordinates(coordinates);
 		fleet.setMission(mission);
 		fleet.setResources(resourceSet);
@@ -146,6 +150,11 @@ public class FleetStarterImpl implements FleetStarter {
 		Events.update(returnEvent);
 		
 		oventService.createAll(fleet);
+		
+		planet.getResources().subtract(getResources());
+		planet.getSpecs().subtract(getSpecs());
+		
+		Planets.update(planet);
 	}
 	
 	// complex getters
@@ -177,7 +186,10 @@ public class FleetStarterImpl implements FleetStarter {
 					targetAccepted = routePlanet.isAssignableFrom(targetPlanet.getClass());
 				}
 				
-				if(startAccepted && targetAccepted) {
+				String mvalidStr = mission.validate(this);
+				boolean missionValid = mvalidStr == null || mvalidStr.isEmpty();
+				
+				if(startAccepted && targetAccepted && missionValid) {
 					allowed.add(mission);
 					continue missions;
 				}
@@ -309,7 +321,7 @@ public class FleetStarterImpl implements FleetStarter {
 	}
 	
 	@Override
-	public Map<String, Double> getResourceCounts() {
+	public Map<String, String> getResourceCounts() {
 		return resourceCounts;
 	}
 	

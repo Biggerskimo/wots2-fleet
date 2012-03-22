@@ -6,9 +6,10 @@ import de.abbaddie.wot.data.planet.Planet;
 import de.abbaddie.wot.data.resource.EditableResourceContainer;
 import de.abbaddie.wot.data.spec.EditableSpecContainer;
 import de.abbaddie.wot.fleet.data.mission.Mission;
+import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 
 public interface EditableFleet extends Fleet, EditableCoordinatesContainer, EditableResourceContainer,
-		EditableSpecContainer {
+		EditableSpecContainer<FleetBound> {
 	public void setStartPlanet(Planet planet);
 	
 	public void setTargetPlanet(Planet planet);

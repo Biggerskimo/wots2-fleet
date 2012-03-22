@@ -34,6 +34,7 @@ public class FleetOventServiceImpl implements FleetOventService {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, true);
 		EditableOvent ovent = oventRepo.create();
 		
+		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.IMPACT).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.IMPACT));
 		ovent.setPlanet(fleet.getTargetPlanet());
 		ovent.setUser(fleet.getStartPlanet().getOwner());
@@ -47,6 +48,7 @@ public class FleetOventServiceImpl implements FleetOventService {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, false);
 		EditableOvent ovent = oventRepo.create();
 		
+		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.IMPACT).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.IMPACT));
 		ovent.setPlanet(fleet.getTargetPlanet());
 		ovent.setUser(fleet.getTargetPlanet().getOwner());
@@ -60,6 +62,7 @@ public class FleetOventServiceImpl implements FleetOventService {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, true);
 		EditableOvent ovent = oventRepo.create();
 		
+		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.RETURN).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.RETURN));
 		ovent.setPlanet(fleet.getStartPlanet());
 		ovent.setUser(fleet.getStartPlanet().getOwner());
@@ -101,24 +104,34 @@ public class FleetOventServiceImpl implements FleetOventService {
 		switch(fleet.getMission().getMissionId()) {
 			case 1:
 				str = "attack";
+				break;
 			case 3:
 				str = "transport";
+				break;
 			case 4:
 				str = "deploy";
+				break;
 			case 5:
 				str = "destroy";
+				break;
 			case 6:
 				str = "espionage";
+				break;
 			case 8:
 				str = "harvest";
+				break;
 			case 9:
 				str = "colony";
+				break;
 			case 11:
 				str = "federation";
+				break;
 			case 12:
 				str = "hold";
+				break;
 			case 20:
 				str = "missile";
+				break;
 			default:
 				str = "catattack";
 		}

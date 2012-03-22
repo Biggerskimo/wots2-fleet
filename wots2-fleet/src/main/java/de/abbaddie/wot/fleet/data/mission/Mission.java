@@ -2,6 +2,7 @@ package de.abbaddie.wot.fleet.data.mission;
 
 import java.util.List;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -14,10 +15,10 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.ConstraintValidatorContext;
 
 import de.abbaddie.wot.fleet.data.start.FleetStarter;
 
+@Cacheable
 @DiscriminatorColumn(name = "clazz")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -74,7 +75,7 @@ public class Mission {
 		return routes;
 	}
 	
-	public boolean validate(FleetStarter starter, ConstraintValidatorContext context) {
-		return true;
+	public String validate(FleetStarter starter) {
+		return null;
 	}
 }

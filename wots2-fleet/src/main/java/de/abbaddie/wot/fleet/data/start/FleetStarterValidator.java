@@ -14,7 +14,7 @@ import de.abbaddie.wot.event.ListProcessor;
 import de.abbaddie.wot.fleet.data.fleet.FleetRepository;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetSlotProvider;
 
-public class FleetStarterValidator implements ConstraintValidator<FleetStarterConstraint, FleetStarterImpl> {
+public class FleetStarterValidator implements ConstraintValidator<FleetStarterConstraint, FleetStarter> {
 	@Autowired
 	protected FleetRepository fleetRepo;
 	
@@ -32,7 +32,7 @@ public class FleetStarterValidator implements ConstraintValidator<FleetStarterCo
 	}
 	
 	@Override
-	public boolean isValid(FleetStarterImpl starter, ConstraintValidatorContext context) {
+	public boolean isValid(FleetStarter starter, ConstraintValidatorContext context) {
 		errorFound = false;
 		this.context = context;
 		

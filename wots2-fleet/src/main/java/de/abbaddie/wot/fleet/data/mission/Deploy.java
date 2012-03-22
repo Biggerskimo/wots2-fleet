@@ -2,7 +2,6 @@ package de.abbaddie.wot.fleet.data.mission;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.ConstraintValidatorContext;
 
 import de.abbaddie.wot.fleet.data.start.FleetStarter;
 
@@ -14,11 +13,11 @@ public class Deploy extends Mission {
 	}
 	
 	@Override
-	public boolean validate(FleetStarter starter, ConstraintValidatorContext context) {
+	public String validate(FleetStarter starter) {
 		if(starter.getStartPlanet().getOwner() != starter.getTargetPlanet().getOwner()) {
-			return false;
+			return "Du kannst nur auf deine eigenen Planeten stationieren.";
 		}
 		
-		return true;
+		return null;
 	}
 }
