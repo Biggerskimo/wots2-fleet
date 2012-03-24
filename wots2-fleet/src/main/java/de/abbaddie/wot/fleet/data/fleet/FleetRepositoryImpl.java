@@ -9,7 +9,7 @@ import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 
-import de.abbaddie.wot.data.user.WotUser;
+import de.abbaddie.wot.data.user.User;
 
 @Repository
 public class FleetRepositoryImpl implements FleetRepository {
@@ -17,7 +17,7 @@ public class FleetRepositoryImpl implements FleetRepository {
 	protected EntityManager em;
 	
 	@Override
-	public List<? extends FleetImpl> findByOwner(WotUser owner) {
+	public List<? extends FleetImpl> findByOwner(User owner) {
 		TypedQuery<FleetImpl> q = em.createQuery("SELECT f FROM FleetImpl f WHERE f.ownerId = :ownerId",
 				FleetImpl.class);
 		q.setParameter("ownerId", owner.getId());

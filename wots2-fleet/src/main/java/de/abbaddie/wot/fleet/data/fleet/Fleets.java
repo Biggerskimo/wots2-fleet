@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.abbaddie.wot.data.user.WotUser;
+import de.abbaddie.wot.data.user.User;
 import de.abbaddie.wot.lib.BeanConfigurationUtil;
 
 public final class Fleets {
@@ -21,7 +21,7 @@ public final class Fleets {
 		repo = repo_;
 	}
 	
-	public static List<? extends FleetImpl> findByOwner(WotUser owner) {
+	public static List<? extends FleetImpl> findByOwner(User owner) {
 		return repo.findByOwner(owner);
 	}
 	
