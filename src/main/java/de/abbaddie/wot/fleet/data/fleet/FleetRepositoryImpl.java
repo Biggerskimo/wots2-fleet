@@ -24,7 +24,9 @@ public class FleetRepositoryImpl implements FleetRepository {
 	
 	@Override
 	public List<? extends FleetImpl> findByOwner(User owner) {
-		TypedQuery<FleetImpl> q = em.createQuery("SELECT f FROM FleetImpl f WHERE f.ownerId = :ownerId",
+		TypedQuery<FleetImpl> q = em.createQuery(
+				"SELECT f FROM FleetImpl f JOIN FETCH f.startPlanet JOIN FETCH f.targetPlanet"
+						+ " JOIN FETCH f.impactEvent JOIN FETCH f.returnEvent WHERE f.ownerId = :ownerId",
 				FleetImpl.class);
 		q.setParameter("ownerId", owner.getId());
 		List<FleetImpl> list = q.getResultList();
