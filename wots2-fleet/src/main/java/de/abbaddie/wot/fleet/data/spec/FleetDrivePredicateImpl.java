@@ -2,13 +2,16 @@ package de.abbaddie.wot.fleet.data.spec;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import de.abbaddie.wot.data.spec.SpecPredicate;
-import de.abbaddie.wot.data.spec.Specs;
+import de.abbaddie.wot.data.spec.SpecPredicateImpl;
 
 @Entity
 @Table(name = "ugml_spec_drive")
@@ -18,11 +21,13 @@ public class FleetDrivePredicateImpl implements FleetDrivePredicate {
 	@Column(name = "specDriveID")
 	protected int id;
 	
-	@Column(name = "specID")
-	protected int fleetSpecId;
+	@ManyToOne(targetEntity = SpecPredicateImpl.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "specID")
+	protected SpecPredicate fleetSpec;
 	
-	@Column(name = "drive")
-	protected int driveSpecId;
+	@ManyToOne(targetEntity = SpecPredicateImpl.class)
+	@JoinColumn(name = "drive")
+	protected SpecPredicate driveSpec;
 	
 	protected int speed;
 	
@@ -35,7 +40,7 @@ public class FleetDrivePredicateImpl implements FleetDrivePredicate {
 	
 	@Override
 	public SpecPredicate getDriveSpec() {
-		return Specs.findOne(driveSpecId);
+		return driveSpec;
 	}
 	
 	@Override

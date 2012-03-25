@@ -8,26 +8,26 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import org.joda.time.DateTime;
 
 import com.google.common.collect.ImmutableMap;
 
 import de.abbaddie.wot.data.coordinates.AbstractCoordinates;
 import de.abbaddie.wot.data.coordinates.Coordinates;
 import de.abbaddie.wot.data.event.Event;
-import de.abbaddie.wot.data.event.EventExecutor;
-import de.abbaddie.wot.data.event.Events;
+import de.abbaddie.wot.data.event.EventImpl;
 import de.abbaddie.wot.data.planet.Planet;
-import de.abbaddie.wot.data.planet.Planets;
+import de.abbaddie.wot.data.planet.PlanetImpl;
 import de.abbaddie.wot.data.resource.CrystalResource;
 import de.abbaddie.wot.data.resource.DeuteriumResource;
 import de.abbaddie.wot.data.resource.MetalResource;
@@ -38,13 +38,13 @@ import de.abbaddie.wot.data.resource.Resources;
 import de.abbaddie.wot.data.spec.SpecMapper;
 import de.abbaddie.wot.data.spec.SpecPredicate;
 import de.abbaddie.wot.data.spec.SpecSet;
-import de.abbaddie.wot.data.spec.Specs;
 import de.abbaddie.wot.fleet.data.mission.Mission;
 import de.abbaddie.wot.fleet.data.mission.Missions;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 
 @Entity
 @Table(name = "ugml_fleet")
+// TODO besseres decoupling der planeten/events?
 class FleetImpl implements EditableFleet {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,17 +59,19 @@ class FleetImpl implements EditableFleet {
 	protected Integer ofiaraId;
 	
 	@NotNull
-	@Column(name = "startPlanetID")
-	protected int startPlanetId;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = PlanetImpl.class)
+	@JoinColumn(name = "startPlanetID")
+	protected Planet startPlanet;
 	
-	@Column(name = "targetPlanetID")
-	protected Integer targetPlanetId;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = PlanetImpl.class)
+	@JoinColumn(name = "targetPlanetID")
+	protected Planet targetPlanet;
 	
 	@NotNull
 	@OneToMany(cascade = CascadeType.ALL)
-	@MapKey(name = "specId")
+	@MapKey(name = "spec")
 	@JoinColumn(name = "fleetID")
-	protected Map<Integer, FleetSpec> specs = new HashMap<>();
+	protected Map<SpecPredicate, FleetSpec> specs = new HashMap<>();
 	
 	@Column(name = "missionID")
 	protected int missionId;
@@ -81,15 +83,21 @@ class FleetImpl implements EditableFleet {
 	@Embedded
 	protected FleetCoordinates coords;
 	
-	protected Integer impactEventId;
 	protected int impactTime;
-	protected int returnEventId;
 	protected int returnTime;
 	
-	protected transient Map<FleetEventType, Event> events;
+	@OneToOne(targetEntity = EventImpl.class)
+	@JoinColumn(name = "impactEventID")
+	protected Event impactEvent;
+	
+	@NotNull
+	@OneToOne(targetEntity = EventImpl.class)
+	@JoinColumn(name = "returnEventID")
+	protected Event returnEvent;
+	
+	protected transient SpecSet<FleetBound> specSet;
 	
 	public FleetImpl() {
-		events = new HashMap<>();
 	}
 	
 	// getter
@@ -100,17 +108,21 @@ class FleetImpl implements EditableFleet {
 	
 	@Override
 	public SpecSet<FleetBound> getSpecs() {
-		return Specs.getSpecSet(new FleetSpecMapper(), FleetBound.class);
+		return specSet;
+	}
+	
+	Map<SpecPredicate, FleetSpec> getSpecLevels() {
+		return specs;
 	}
 	
 	@Override
 	public Planet getStartPlanet() {
-		return Planets.findOne(startPlanetId);
+		return startPlanet;
 	}
 	
 	@Override
 	public Planet getTargetPlanet() {
-		return targetPlanetId == null ? null : Planets.findOne(targetPlanetId);
+		return targetPlanet;
 	}
 	
 	@Override
@@ -137,56 +149,10 @@ class FleetImpl implements EditableFleet {
 	public Map<FleetEventType, Event> getEvents() {
 		ImmutableMap.Builder<FleetEventType, Event> builder = new ImmutableMap.Builder<>();
 		
-		if(events.containsKey(DefaultEventTypes.IMPACT)) {
-			builder.put(DefaultEventTypes.IMPACT, events.get(DefaultEventTypes.IMPACT));
-		} else if(impactEventId != null && impactEventId != 0) {
-			builder.put(DefaultEventTypes.IMPACT, new Event() {
-				@Override
-				public int getId() {
-					return impactEventId;
-				}
-				
-				@Override
-				public DateTime getTime() {
-					return new DateTime((long) impactTime * 1000);
-				}
-				
-				@Override
-				public EventExecutor getExecutor() {
-					throw new UnsupportedOperationException();
-				}
-				
-				@Override
-				public int getRelationalId() {
-					return id;
-				}
-			});
+		if(impactEvent != null) {
+			builder.put(DefaultEventTypes.IMPACT, impactEvent);
 		}
-		if(events.containsKey(DefaultEventTypes.RETURN)) {
-			builder.put(DefaultEventTypes.RETURN, events.get(DefaultEventTypes.RETURN));
-		} else {
-			builder.put(DefaultEventTypes.RETURN, new Event() {
-				@Override
-				public int getId() {
-					return returnEventId;
-				}
-				
-				@Override
-				public DateTime getTime() {
-					return new DateTime((long) returnTime * 1000);
-				}
-				
-				@Override
-				public EventExecutor getExecutor() {
-					throw new UnsupportedOperationException();
-				}
-				
-				@Override
-				public int getRelationalId() {
-					return id;
-				}
-			});
-		}
+		builder.put(DefaultEventTypes.RETURN, returnEvent);
 		
 		return builder.build();
 	}
@@ -194,8 +160,11 @@ class FleetImpl implements EditableFleet {
 	// setter
 	@Override
 	public void setSpecs(SpecSet<? extends FleetBound> specs) {
-		getSpecs().clear();
-		getSpecs().add(specs);
+		specSet.replace(specs);
+	}
+	
+	void setSpecsInternal(SpecSet<FleetBound> specs) {
+		specSet = specs;
 	}
 	
 	@Override
@@ -217,37 +186,25 @@ class FleetImpl implements EditableFleet {
 	
 	@Override
 	public void setStartPlanet(Planet planet) {
-		startPlanetId = planet.getId();
+		startPlanet = planet;
 		ownerId = planet.getOwner().getId();
 	}
 	
 	@Override
 	public void setTargetPlanet(Planet planet) {
-		if(planet == null) {
-			targetPlanetId = null;
-			ofiaraId = null;
-		} else {
-			targetPlanetId = planet.getId();
-			ofiaraId = planet.getOwner().getId();
-		}
+		targetPlanet = planet;
+		ofiaraId = planet == null ? null : planet.getOwner().getId();
 	}
 	
 	@Override
 	public void setEvent(FleetEventType type, Event event) {
-		events.put(type, event);
 		if(type == DefaultEventTypes.IMPACT) {
-			if(event == null) {
-				Events.delete(Events.findOne(impactEventId));
-				impactEventId = null;
-			} else {
-				impactEventId = event.getId();
+			impactEvent = event;
+			if(event != null) {
 				impactTime = (int) (event.getTime().getMillis() / 1000);
 			}
 		} else if(type == DefaultEventTypes.RETURN) {
-			if(event == null) {
-				throw new UnsupportedOperationException();
-			}
-			returnEventId = event.getId();
+			returnEvent = event;
 			returnTime = (int) (event.getTime().getMillis() / 1000);
 		} else {
 			throw new IllegalArgumentException();
@@ -329,7 +286,7 @@ class FleetImpl implements EditableFleet {
 	protected class FleetSpecMapper implements SpecMapper {
 		@Override
 		public long getLevel(SpecPredicate predicate) {
-			FleetSpec spec = specs.get(predicate.getId());
+			FleetSpec spec = specs.get(predicate);
 			
 			if(spec == null) {
 				return 0;
@@ -343,9 +300,9 @@ class FleetImpl implements EditableFleet {
 			FleetSpec spec = specs.get(predicate);
 			
 			if(spec == null) {
-				specs.put(predicate.getId(), new FleetSpec(FleetImpl.this, predicate, level));
+				specs.put(predicate, new FleetSpec(FleetImpl.this, predicate, level));
 			} else {
-				specs.get(predicate.getId()).setCount(level);
+				specs.get(predicate).setCount(level);
 			}
 		}
 	}

@@ -25,16 +25,17 @@ import de.abbaddie.wot.config.Config;
 import de.abbaddie.wot.data.coordinates.Coordinates;
 import de.abbaddie.wot.data.coordinates.DynamicCoordinates;
 import de.abbaddie.wot.data.event.EditableEvent;
-import de.abbaddie.wot.data.event.Events;
+import de.abbaddie.wot.data.event.EventRepository;
 import de.abbaddie.wot.data.planet.EditablePlanet;
 import de.abbaddie.wot.data.planet.Planet;
-import de.abbaddie.wot.data.planet.Planets;
+import de.abbaddie.wot.data.planet.PlanetRepository;
 import de.abbaddie.wot.data.resource.CrystalResource;
 import de.abbaddie.wot.data.resource.DeuteriumResource;
 import de.abbaddie.wot.data.resource.MetalResource;
 import de.abbaddie.wot.data.resource.ResourcePredicate;
 import de.abbaddie.wot.data.resource.ResourceValueSet;
 import de.abbaddie.wot.data.resource.Resources;
+import de.abbaddie.wot.data.spec.SpecRepository;
 import de.abbaddie.wot.data.spec.SpecSet;
 import de.abbaddie.wot.data.spec.Specs;
 import de.abbaddie.wot.data.spec.filter.PositiveFilter;
@@ -62,6 +63,15 @@ public class FleetStarterImpl implements FleetStarter {
 	@Autowired
 	protected FleetOventService oventService;
 	
+	@Autowired
+	protected EventRepository eventRepo;
+	
+	@Autowired
+	protected PlanetRepository planetRepo;
+	
+	@Autowired
+	protected SpecRepository specRepo;
+	
 	@PersistenceContext
 	protected EntityManager em;
 	
@@ -86,7 +96,7 @@ public class FleetStarterImpl implements FleetStarter {
 	
 	public FleetStarterImpl() {
 		levels = new HashMap<>();
-		specs = Specs.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
+		specs = specRepo.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
 		
 		resourceCounts = new HashMap<>();
 		resourceSet = Resources.generateDynamic(getAllowedResourcePredicates(),
@@ -118,15 +128,15 @@ public class FleetStarterImpl implements FleetStarter {
 		
 		DateTime now = DateTime.now();
 		
-		EditableEvent impactEvent = Events.create();
+		EditableEvent impactEvent = eventRepo.create();
 		impactEvent.setTime(now.withDurationAdded(getDuration(), 1));
 		impactEvent.setExecutor(FleetEventExecutor.class);
-		Events.update(impactEvent);
+		eventRepo.update(impactEvent);
 		
-		EditableEvent returnEvent = Events.create();
+		EditableEvent returnEvent = eventRepo.create();
 		returnEvent.setTime(now.withDurationAdded(getDuration(), 2));
 		returnEvent.setExecutor(FleetEventExecutor.class);
-		Events.update(returnEvent);
+		eventRepo.update(returnEvent);
 		
 		em.flush();
 		
@@ -144,17 +154,17 @@ public class FleetStarterImpl implements FleetStarter {
 		em.flush();
 		
 		impactEvent.setRelationalId(fleet.getId());
-		Events.update(impactEvent);
+		eventRepo.update(impactEvent);
 		
 		returnEvent.setRelationalId(fleet.getId());
-		Events.update(returnEvent);
+		eventRepo.update(returnEvent);
 		
 		oventService.createAll(fleet);
 		
 		planet.getResources().subtract(getResources());
 		planet.getSpecs().subtract(getSpecs());
 		
-		Planets.update(planet);
+		planetRepo.update(planet);
 	}
 	
 	// complex getters
@@ -175,14 +185,14 @@ public class FleetStarterImpl implements FleetStarter {
 				if(route.getStartPlanetTypeId() == null) {
 					startAccepted = (startPlanet == null);
 				} else {
-					routePlanet = Planets.getPlanetClass(route.getStartPlanetTypeId());
+					routePlanet = planetRepo.getPlanetClass(route.getStartPlanetTypeId());
 					startAccepted = routePlanet.isAssignableFrom(startPlanet.getClass());
 				}
 				
 				if(route.getTargetPlanetTypeId() == null) {
 					targetAccepted = (getTargetPlanet() == null);
 				} else if(getTargetPlanet() != null) {
-					routePlanet = Planets.getPlanetClass(route.getTargetPlanetTypeId());
+					routePlanet = planetRepo.getPlanetClass(route.getTargetPlanetTypeId());
 					targetAccepted = routePlanet.isAssignableFrom(targetPlanet.getClass());
 				}
 				
@@ -297,7 +307,7 @@ public class FleetStarterImpl implements FleetStarter {
 	@Override
 	public Planet getTargetPlanet() {
 		if(targetChanged) {
-			targetPlanet = Planets.findByCoordinates(coordinates);
+			targetPlanet = planetRepo.findByCoordinates(coordinates);
 			targetChanged = false;
 		}
 		return targetPlanet;
@@ -368,7 +378,7 @@ public class FleetStarterImpl implements FleetStarter {
 	
 	@Override
 	public void setTargetPlanetId(int targetPlanetId) {
-		targetPlanet = Planets.findOne(targetPlanetId);
+		targetPlanet = planetRepo.findOne(targetPlanetId);
 		coordinates = new FleetStartCoordinates(targetPlanet.getCoordinates());
 	}
 	

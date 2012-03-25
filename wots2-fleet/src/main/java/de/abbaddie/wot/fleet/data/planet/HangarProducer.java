@@ -12,8 +12,8 @@ import de.abbaddie.wot.config.Config;
 import de.abbaddie.wot.data.planet.Planet;
 import de.abbaddie.wot.data.planet.Producer;
 import de.abbaddie.wot.data.spec.Spec;
+import de.abbaddie.wot.data.spec.SpecRepository;
 import de.abbaddie.wot.data.spec.SpecSet;
-import de.abbaddie.wot.data.spec.Specs;
 import de.abbaddie.wot.fleet.data.spec.trait.HangarProductionCatalyst;
 
 @Component
@@ -25,6 +25,9 @@ public class HangarProducer implements Producer {
 	
 	@Autowired
 	protected Config config;
+	
+	@Autowired
+	protected SpecRepository specRepo;
 	
 	@Override
 	public void setPlanet(Planet planet) {
@@ -95,7 +98,7 @@ public class HangarProducer implements Producer {
 			int specId = Integer.parseInt(jobParts[0]);
 			int count = Integer.parseInt(jobParts[1]);
 			
-			Spec spec = planet.getSpecs().get(Specs.findOne(specId));
+			Spec spec = planet.getSpecs().get(specRepo.findOne(specId));
 			
 			jobs.add(new HangarJob(this, spec, count));
 		}

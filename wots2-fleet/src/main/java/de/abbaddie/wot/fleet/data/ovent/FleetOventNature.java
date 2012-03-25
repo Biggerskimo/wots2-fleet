@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -19,6 +20,7 @@ import de.abbaddie.wot.data.resource.ResourcePredicate;
 import de.abbaddie.wot.data.resource.ResourceValueSet;
 import de.abbaddie.wot.data.resource.Resources;
 import de.abbaddie.wot.data.spec.Spec;
+import de.abbaddie.wot.data.spec.SpecRepository;
 import de.abbaddie.wot.data.spec.SpecSet;
 import de.abbaddie.wot.data.spec.Specs;
 import de.abbaddie.wot.data.spec.filter.PositiveFilter;
@@ -30,7 +32,10 @@ import de.abbaddie.wot.lib.php.Parser;
 public class FleetOventNature implements OventNature {
 	private static final Logger logger = LoggerFactory.getLogger(FleetOventNature.class);
 	
-	protected transient List<FleetOventFleet> fleets;
+	protected List<FleetOventFleet> fleets;
+	
+	@Autowired
+	protected SpecRepository specRepo;
 	
 	public FleetOventNature() {
 		fleets = new ArrayList<>();
@@ -118,7 +123,7 @@ public class FleetOventNature implements OventNature {
 			fleet.resources = Resources.generateStatic(resources.build());
 			fleet.startCoords = startCoords;
 			fleet.targetCoords = targetCoords;
-			fleet.specs = Specs.getStaticSpecSet(Specs.convertToHardByLong(specs.build()));
+			fleet.specs = specRepo.getStaticSpecSet(Specs.convertToHardByLong(specs.build()));
 			fleet.cssClass = (String) fleetData.get("cssClass");
 			fleet.missionId = Integer.parseInt((String) fleetData.get("missionID"));
 			fleet.startPlanetName = (String) fleetData.get("startPlanetName");

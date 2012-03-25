@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import de.abbaddie.wot.data.spec.SpecPredicate;
-import de.abbaddie.wot.data.spec.Specs;
+import de.abbaddie.wot.data.spec.SpecPredicateImpl;
 
 @Entity
 @Table(name = "ugml_fleet_spec")
@@ -25,9 +25,10 @@ class FleetSpec {
 	@JoinColumn(name = "fleetID")
 	protected Fleet fleet;
 	
+	@ManyToOne(targetEntity = SpecPredicateImpl.class)
 	@NotNull
-	@Column(name = "specID")
-	protected int specId;
+	@JoinColumn(name = "specID")
+	protected SpecPredicate spec;
 	
 	private long count;
 	
@@ -37,12 +38,12 @@ class FleetSpec {
 	
 	public FleetSpec(Fleet fleet, SpecPredicate predicate, long count) {
 		this.fleet = fleet;
-		specId = predicate.getId();
+		this.spec = predicate;
 		this.count = count;
 	}
 	
 	public SpecPredicate getSpecPredicate() {
-		return Specs.findOne(specId);
+		return spec;
 	}
 	
 	public long getCount() {
