@@ -8,7 +8,6 @@ var WotFleetstart = {
 		
 		$form.submit(WotFleetstart.fleetstartSubmit);
 		$form.append("<ul class=\"fleetstartSpecs\">");
-		$form.append("<p class=\"warning fleetstartNoSpecs\">Keine Schiffe vorhanden.</p>");
 		$form.append(
 				$("<div class=\"coordinates\" />")
 				.append("<label for=\"coordinatesGalaxy\">Ziel</label>")
@@ -87,11 +86,8 @@ var WotFleetstart = {
 			$specs.append($li);
 		});
 		
-		if(WotFleetstart.specs == null) {
-			$(".fleetstartNoSpecs").show();
-		}
-		else {
-			$(".fleetstartNoSpecs").hide();
+		if(WotFleetstart.specs == null || WotFleetstart.specs == []) {
+			WotLib.addActionResult("warning", ["Es sind keine Schiffe vorhanden!"]);
 		}
 		
 		$.each({"metal": "Metal", "crystal": "Crystal", "deuterium" : "Deuterium"}, function(lower, upper) {
