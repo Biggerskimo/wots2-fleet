@@ -18,7 +18,6 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -55,14 +54,12 @@ class FleetImpl implements EditableFleet {
 	@Column(name = "fleetID")
 	protected int id;
 	
-	@NotNull
 	@Column(name = "ownerID")
 	protected int ownerId;
 	
 	@Column(name = "ofiaraID")
 	protected Integer ofiaraId;
 	
-	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = PlanetImpl.class)
 	@JoinColumn(name = "startPlanetID")
 	protected Planet startPlanet;
@@ -71,7 +68,6 @@ class FleetImpl implements EditableFleet {
 	@JoinColumn(name = "targetPlanetID")
 	protected Planet targetPlanet;
 	
-	@NotNull
 	@OneToMany(cascade = CascadeType.ALL)
 	@MapKey(name = "spec")
 	@JoinColumn(name = "fleetID")
@@ -94,7 +90,6 @@ class FleetImpl implements EditableFleet {
 	@JoinColumn(name = "impactEventID")
 	protected Event impactEvent;
 	
-	@NotNull
 	@OneToOne(targetEntity = EventImpl.class)
 	@JoinColumn(name = "returnEventID")
 	protected Event returnEvent;

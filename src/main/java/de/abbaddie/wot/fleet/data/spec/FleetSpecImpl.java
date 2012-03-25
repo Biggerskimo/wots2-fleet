@@ -44,16 +44,17 @@ public abstract class FleetSpecImpl extends SpecImpl implements FleetBound {
 		protected boolean isUsable(SpecSet<?> technologies) {
 			SpecPredicate searchedTech = predicate.getDriveSpec();
 			
-			for(Spec spec : technologies) {
-				if(spec.getPredicate().equals(searchedTech)) {
-					driveSpec = spec;
-					
-					boolean minAllowed = predicate.getMin() != null ? spec.getLevel() >= predicate.getMin() : true;
-					boolean maxAllowed = predicate.getMax() != null ? spec.getLevel() <= predicate.getMax() : true;
-					return minAllowed && maxAllowed;
-				}
+			Spec spec = technologies.get(searchedTech);
+			
+			if(spec == null) {
+				return false;
 			}
-			return false;
+			
+			driveSpec = spec;
+			
+			boolean minAllowed = predicate.getMin() != null ? spec.getLevel() >= predicate.getMin() : true;
+			boolean maxAllowed = predicate.getMax() != null ? spec.getLevel() <= predicate.getMax() : true;
+			return minAllowed && maxAllowed;
 		}
 		
 		@Override
