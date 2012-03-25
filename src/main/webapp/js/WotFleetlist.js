@@ -23,7 +23,11 @@ var WotFleetlist = {
 	},
 	
 	cancel: function(fleetId) {
-		var handler = WotLib.getActionResultHandler("Die Flotte wurde zurückgerufen.", WotHandler.rerender, WotHandler.rerender);
+		var handler = WotLib.getActionResultHandler({
+			successMessage: "Die Flotte wurde zurückgerufen.",
+			successCallback: WotHandler.rerender,
+			errorCallback: WotHandler.rerender
+		});
 		WotRequest.start("fleetlist/cancel", "fleetId=" + fleetId, handler, "fleetlistCancelResult");
 	},
 	

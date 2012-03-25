@@ -105,7 +105,10 @@ var WotFleetstart = {
 	},
 	
 	fleetstartSubmit: function() {
-		var handler = WotLib.getActionResultHandler("Die Flotte versendet.", WotHandler.rerender);
+		var handler = WotLib.getActionResultHandler({
+			successMessage: "Die Flotte wurde versendet.",
+			successCallback: WotHandler.rerender
+		});
 		WotRequest.start("fleetstart/fire", $(".fleetstart").serialize(), handler, "fleetstartResult");
 		
 		return false;

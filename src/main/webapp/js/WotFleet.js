@@ -68,14 +68,24 @@ var WotFleet = {
 	scanActionProvider: function(row) {
 		var $button = $("<li class=\"scan\" />");
 		$button.click(function() {
-			WotRequest.start("fleetstart/fire/espionage", "levels[210]=1&targetPlanetId=" + row.kinds[1].planetId);
+			WotFleet.scan(row.kinds[1].planetId, row.coords);
 		});
 		
 		return $button;
 	},
 	
 	moonScanAction: function(row) {
-		WotRequest.start("fleetstart/fire/espionage", "levels[210]=1&targetPlanetId=" + row.kinds[3].planetId);
+		WotFleet.scan(row.kinds[3].planetId, row.coords);
+	},
+	
+	scan: function(planetId, coords) {
+		var handler = WotLib.getActionResultHandler({
+			successMessage: "Die Spionagesonde wurde versendet.",
+			cumulative: true,
+			prefix: "["+coords[0]+":"+coords[1]+":"+coords[2]+"]: "
+		});
+		
+		WotRequest.start("fleetstart/fire/espionage", "levels[210]=1&targetPlanetId=" + planetId, handler, "fleetstartResult");
 	},
 	
 	
