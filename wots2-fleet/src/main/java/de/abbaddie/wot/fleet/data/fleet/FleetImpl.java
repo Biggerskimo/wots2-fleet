@@ -20,6 +20,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+
 import com.google.common.collect.ImmutableMap;
 
 import de.abbaddie.wot.data.coordinates.AbstractCoordinates;
@@ -39,9 +42,10 @@ import de.abbaddie.wot.data.spec.SpecMapper;
 import de.abbaddie.wot.data.spec.SpecPredicate;
 import de.abbaddie.wot.data.spec.SpecSet;
 import de.abbaddie.wot.fleet.data.mission.Mission;
-import de.abbaddie.wot.fleet.data.mission.Missions;
+import de.abbaddie.wot.fleet.data.mission.MissionRepository;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 
+@Configurable
 @Entity
 @Table(name = "ugml_fleet")
 // TODO besseres decoupling der planeten/events?
@@ -97,6 +101,9 @@ class FleetImpl implements EditableFleet {
 	
 	protected transient SpecSet<FleetBound> specSet;
 	
+	@Autowired
+	protected transient MissionRepository missionRepo;
+	
 	public FleetImpl() {
 	}
 	
@@ -127,7 +134,7 @@ class FleetImpl implements EditableFleet {
 	
 	@Override
 	public Mission getMission() {
-		return Missions.findOne(missionId);
+		return missionRepo.findOne(missionId);
 	}
 	
 	@Override

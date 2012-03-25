@@ -42,10 +42,10 @@ import de.abbaddie.wot.data.spec.filter.PositiveFilter;
 import de.abbaddie.wot.fleet.data.event.FleetEventExecutor;
 import de.abbaddie.wot.fleet.data.fleet.DefaultEventTypes;
 import de.abbaddie.wot.fleet.data.fleet.EditableFleet;
-import de.abbaddie.wot.fleet.data.fleet.Fleets;
+import de.abbaddie.wot.fleet.data.fleet.FleetRepository;
 import de.abbaddie.wot.fleet.data.mission.Mission;
+import de.abbaddie.wot.fleet.data.mission.MissionRepository;
 import de.abbaddie.wot.fleet.data.mission.MissionRoute;
-import de.abbaddie.wot.fleet.data.mission.Missions;
 import de.abbaddie.wot.fleet.data.ovent.FleetOventService;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound.FleetDrive;
@@ -71,6 +71,12 @@ public class FleetStarterImpl implements FleetStarter {
 	
 	@Autowired
 	protected SpecRepository specRepo;
+	
+	@Autowired
+	protected FleetRepository fleetRepo;
+	
+	@Autowired
+	protected MissionRepository missionRepo;
 	
 	@PersistenceContext
 	protected EntityManager em;
@@ -140,7 +146,7 @@ public class FleetStarterImpl implements FleetStarter {
 		
 		em.flush();
 		
-		EditableFleet fleet = Fleets.create();
+		EditableFleet fleet = fleetRepo.create();
 		fleet.setSpecs(getSpecs());
 		fleet.setCoordinates(coordinates);
 		fleet.setMission(mission);
@@ -149,7 +155,7 @@ public class FleetStarterImpl implements FleetStarter {
 		fleet.setTargetPlanet(targetPlanet);
 		fleet.setEvent(DefaultEventTypes.IMPACT, impactEvent);
 		fleet.setEvent(DefaultEventTypes.RETURN, returnEvent);
-		Fleets.update(fleet);
+		fleetRepo.update(fleet);
 		
 		em.flush();
 		
@@ -170,7 +176,7 @@ public class FleetStarterImpl implements FleetStarter {
 	// complex getters
 	@Override
 	public List<Mission> getAllowedMissions() {
-		Iterable<Mission> all = Missions.findAll();
+		Iterable<Mission> all = missionRepo.findAll();
 		List<Mission> allowed = new ArrayList<>();
 		
 		missions:
@@ -366,7 +372,7 @@ public class FleetStarterImpl implements FleetStarter {
 	public void setMissionId(int missionId) {
 		this.missionId = missionId;
 		
-		mission = Missions.findOne(missionId);
+		mission = missionRepo.findOne(missionId);
 	}
 	
 	@Override

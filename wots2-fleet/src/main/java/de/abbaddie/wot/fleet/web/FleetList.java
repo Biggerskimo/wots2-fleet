@@ -15,7 +15,6 @@ import de.abbaddie.wot.fleet.data.fleet.EditableFleet;
 import de.abbaddie.wot.fleet.data.fleet.Fleet;
 import de.abbaddie.wot.fleet.data.fleet.FleetCancelService;
 import de.abbaddie.wot.fleet.data.fleet.FleetRepository;
-import de.abbaddie.wot.fleet.data.fleet.Fleets;
 import de.abbaddie.wot.fleet.web.lib.FleetlistCancelResultResponsePart;
 import de.abbaddie.wot.fleet.web.lib.FleetlistResponsePart;
 import de.abbaddie.wot.web.LoggedInController;
@@ -52,7 +51,7 @@ public class FleetList extends LoggedInController {
 		addDefaultParts(resp);
 		
 		try {
-			EditableFleet fleet = (EditableFleet) Fleets.findOne(fleetId);
+			EditableFleet fleet = (EditableFleet) fleetRepo.findOne(fleetId);
 			
 			if(fleet == null || !fleet.getStartPlanet().getOwner().equals(getUser())) {
 				resp.addPart(new FleetlistCancelResultResponsePart("Fehlende Rechte."));
