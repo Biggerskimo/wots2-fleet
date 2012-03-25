@@ -2,14 +2,18 @@ package de.abbaddie.wot.fleet.data.fleet;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.abbaddie.wot.data.event.Event;
-import de.abbaddie.wot.data.event.ForwardingEvent;
+import de.abbaddie.wot.data.event.EditableEvent;
+import de.abbaddie.wot.data.event.EventRepository;
 
 @Service
 public class FleetCancelServiceImpl implements FleetCancelService {
+	@Autowired
+	protected EventRepository eventRepo;
+	
 	@Override
 	public boolean isCancellable(EditableFleet fleet) {
 		return(fleet.getEvents().get(DefaultEventTypes.IMPACT) != null);
@@ -30,20 +34,11 @@ public class FleetCancelServiceImpl implements FleetCancelService {
 		
 		Duration done = new Duration(startTime, time);
 		
-		final Event oldReturnEvent = fleet.getEvents().get(DefaultEventTypes.RETURN);
+		EditableEvent returnEvent = eventRepo.toEditable(fleet.getEvents().get(DefaultEventTypes.RETURN));
 		final DateTime newReturnTime = time.plus(done);
 		
+		returnEvent.setTime(newReturnTime);
+		
 		fleet.setEvent(DefaultEventTypes.IMPACT, null);
-		fleet.setEvent(DefaultEventTypes.RETURN, new ForwardingEvent() {
-			@Override
-			protected Event delegate() {
-				return oldReturnEvent;
-			}
-			
-			@Override
-			public DateTime getTime() {
-				return newReturnTime;
-			}
-		});
 	}
 }
