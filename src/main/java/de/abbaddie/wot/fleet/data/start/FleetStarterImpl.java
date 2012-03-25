@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
@@ -102,13 +103,17 @@ public class FleetStarterImpl implements FleetStarter {
 	
 	public FleetStarterImpl() {
 		levels = new HashMap<>();
-		specs = specRepo.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
 		
 		resourceCounts = new HashMap<>();
 		resourceSet = Resources.generateDynamic(getAllowedResourcePredicates(),
 				Resources.convertToHardByStr(resourceCounts));
 		
 		coordinates = new FleetStartCoordinates(0, 0, 0, 0);
+	}
+	
+	@PostConstruct
+	protected void postConstruct() {
+		specs = specRepo.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
 	}
 	
 	// fire
