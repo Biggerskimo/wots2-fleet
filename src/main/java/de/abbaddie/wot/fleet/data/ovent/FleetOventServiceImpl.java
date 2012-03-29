@@ -136,9 +136,6 @@ public class FleetOventServiceImpl implements FleetOventService {
 				str = "catattack";
 		}
 		
-		if(own) {
-			return "own" + str;
-		}
 		return str;
 	}
 }
