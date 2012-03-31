@@ -33,7 +33,7 @@ public class EspionageFleetStart extends LoggedInController {
 	@ResponseBody
 	public JsonResponse start(@ModelAttribute("starter") @Valid FleetStarter starter, BindingResult result) {
 		JsonResponse resp = new JsonResponse();
-		addDefaultParts(resp);
+		performDefaultActions(resp);
 		
 		if(!result.hasErrors()) {
 			result = starter.validateAndFire();

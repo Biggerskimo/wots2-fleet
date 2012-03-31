@@ -35,7 +35,7 @@ public class FleetList extends LoggedInController {
 	@ResponseBody
 	public JsonResponse list() {
 		JsonResponse resp = new JsonResponse();
-		addDefaultParts(resp);
+		performDefaultActions(resp);
 		
 		FleetlistResponsePart part = new FleetlistResponsePart();
 		part.addFleets(getFleets());
@@ -48,7 +48,7 @@ public class FleetList extends LoggedInController {
 	@ResponseBody
 	public JsonResponse cancel(@RequestParam("fleetId") int fleetId) {
 		JsonResponse resp = new JsonResponse();
-		addDefaultParts(resp);
+		performDefaultActions(resp);
 		
 		try {
 			EditableFleet fleet = (EditableFleet) fleetRepo.findOne(fleetId);
