@@ -57,8 +57,26 @@ var WotFleetlist = {
 									WotFleetlist.cancel(fleet.fleetId);
 								})
 								.text("Zurückziehen"))))));
+			$li.click(function(e) {
+				WotFleetlist.toggleDetails.call($li, fleet);
+			});
 			$fleetUl.append($li);
 		});
+	},
+	toggleDetails: function(fleet) {
+		var $found = $(this).find(".pageListDetails");
+		
+		if($found.size() == 0) {
+			var $details = $("<div />");
+			WotFleet.showDetails($details, fleet.specs, fleet.resources);
+			
+			var $elem = $("<div class=\"pageListDetails\" />").html($details).hide();
+			$(this).append($elem);
+			$elem.slideDown(150);
+		}
+		else {
+			$found.slideToggle(150);
+		}
 	}
 };
 WotHandler.addModule("fleetlist", {

@@ -11,6 +11,8 @@ import de.abbaddie.wot.fleet.data.fleet.Fleet;
 import de.abbaddie.wot.fleet.data.fleet.FleetEventType;
 import de.abbaddie.wot.web.lib.JsonCoordinates;
 import de.abbaddie.wot.web.lib.JsonPlanet;
+import de.abbaddie.wot.web.lib.JsonResourceValueSet;
+import de.abbaddie.wot.web.lib.JsonSpecSet;
 
 public class JsonFleet {
 	protected int fleetId;
@@ -19,6 +21,8 @@ public class JsonFleet {
 	protected JsonPlanet targetPlanet;
 	protected DateTime impactTime;
 	protected DateTime returnTime;
+	protected JsonSpecSet specs;
+	protected JsonResourceValueSet resources;
 	
 	public JsonFleet(Fleet fleet) {
 		fleetId = fleet.getId();
@@ -35,6 +39,9 @@ public class JsonFleet {
 		impactTime = events.get(DefaultEventTypes.IMPACT) == null ? null : events.get(DefaultEventTypes.IMPACT)
 				.getTime();
 		returnTime = fleet.getEvents().get(DefaultEventTypes.RETURN).getTime();
+		
+		specs = new JsonSpecSet(fleet.getSpecs());
+		resources = new JsonResourceValueSet(fleet.getResources());
 	}
 	
 	public int getFleetId() {
@@ -59,5 +66,13 @@ public class JsonFleet {
 	
 	public JsonPlanet getTargetPlanet() {
 		return targetPlanet;
+	}
+	
+	public JsonResourceValueSet getResources() {
+		return resources;
+	}
+	
+	public JsonSpecSet getSpecs() {
+		return specs;
 	}
 }

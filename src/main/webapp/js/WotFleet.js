@@ -68,59 +68,60 @@ var WotFleet = {
 			var $container = $("<ul />");
 			
 			ovent.fleets.forEach(function(fleet) {
-				var $elem = $("<li />");
-				
-				var $ships = $("<p />");
-				$ships.append("<b>Schiffe</b>: ");
-				var $list = $("<ul class=\"oventFleetSpecs\" />");
-				$.each(fleet.specs, function(specId, count) {
-					$list.append($("<li />").append(count + " " + WotLib.getSpecName(specId)));
-				});
-				$ships.append($list);
-				$elem.append($ships);
-				
-				var $resources = $("<p />");
-				$resources.append("<b>Rohstoffe</b>: ");
-				var text;
-				switch(true) {
-				case fleet.resources.metal > 0 && fleet.resources.crystal > 0 && fleet.resources.deuterium > 0:
-					text = fleet.resources.metal + " Metall, " +
-							fleet.resources.crystal + " Kristall und " +
-							fleet.resources.deuterium + " Deuterium";
-					break;
-				case fleet.resources.metal > 0 && fleet.resources.crystal > 0:
-					text = fleet.resources.metal + " Metall und " +
-							fleet.resources.crystal + " Kristall";
-					break;
-				case fleet.resources.metal > 0 && fleet.resources.deuterium > 0:
-					text = fleet.resources.metal + " Metall und " +
-							fleet.resources.deuterium + " Deuterium";
-					break;
-				case fleet.resources.crystal > 0 && fleet.resources.deuterium > 0:
-					text = fleet.resources.crystal + " Kristall und " +
-							fleet.resources.deuterium + " Deuterium";
-					break;
-				case fleet.resources.metal > 0:
-					text = fleet.resources.metal + " Metall";
-					break;
-				case fleet.resources.crystal > 0:
-					text = fleet.resources.crystal + " Kristall";
-					break;
-				case fleet.resources.deuterium > 0:
-					text = fleet.resources.deuterium + " Deuterium";
-					break;
-				default:
-					text = "Keine Rohstoffe";
-				}
-				if(text) {
-					$resources.append($("<span />").text(text));
-					$elem.append($resources);
-				}
-				
-				$container.append($elem);
+				var $li = $("<li />");
+				WotFleet.showDetails($li, fleet.specs, fleet.resources);
+				$container.append($li);
 			});
-			
 			return $container;
+		}
+	},
+	
+	showDetails: function($container, specs, resources) {
+		var $ships = $("<p />");
+		$ships.append("<b>Schiffe</b>: ");
+		var $list = $("<ul class=\"oventFleetSpecs\" />");
+		$.each(specs, function(specId, count) {
+			$list.append($("<li />").append(count + " " + WotLib.getSpecName(specId)));
+		});
+		$ships.append($list);
+		$container.append($ships);
+		
+		var $resources = $("<p />");
+		$resources.append("<b>Rohstoffe</b>: ");
+		var text;
+		switch(true) {
+			case resources.metal > 0 && resources.crystal > 0 && resources.deuterium > 0:
+				text = resources.metal + " Metall, " +
+						resources.crystal + " Kristall und " +
+						resources.deuterium + " Deuterium";
+				break;
+			case resources.metal > 0 && resources.crystal > 0:
+				text = resources.metal + " Metall und " +
+						resources.crystal + " Kristall";
+				break;
+			case resources.metal > 0 && resources.deuterium > 0:
+				text = resources.metal + " Metall und " +
+						resources.deuterium + " Deuterium";
+				break;
+			case resources.crystal > 0 && resources.deuterium > 0:
+				text = resources.crystal + " Kristall und " +
+						resources.deuterium + " Deuterium";
+				break;
+			case resources.metal > 0:
+				text = resources.metal + " Metall";
+				break;
+			case resources.crystal > 0:
+				text = resources.crystal + " Kristall";
+				break;
+			case resources.deuterium > 0:
+				text = resources.deuterium + " Deuterium";
+				break;
+			default:
+				text = "Keine Rohstoffe";
+		}
+		if(text) {
+			$resources.append($("<span />").text(text));
+			$container.append($resources);
 		}
 	},
 	
