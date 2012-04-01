@@ -112,7 +112,7 @@ public class FleetOventNature implements OventNature {
 			int targetKind;
 			try {
 				targetKind = Integer.parseInt((String) targetCoordsData.get(3));
-			} catch(ClassCastException e) {
+			} catch(ClassCastException | NumberFormatException e) {
 				targetKind = 1;
 			}
 			Coordinates targetCoords = new StaticCoordinates(targetGalaxy, targetSystem, targetOrbit, targetKind);
@@ -133,7 +133,7 @@ public class FleetOventNature implements OventNature {
 				fleet.ofiaraId = Integer.parseInt((String) fleetData.get("ofiaraID"));
 				fleet.targetPlanetId = Integer.parseInt((String) fleetData.get("targetPlanetID"));
 				fleet.targetPlanetName = (String) fleetData.get("targetPlanetName");
-			} catch(ClassCastException e) {
+			} catch(ClassCastException | NumberFormatException e) {
 				fleet.ofiaraId = 0;
 				fleet.targetPlanetId = 0;
 				fleet.targetPlanetName = "unbesiedelter Planet";
