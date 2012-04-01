@@ -7,61 +7,121 @@ var WotFleet = {
 	},
 	
 	// ovents
-	oventParser: function(ovent) {
-		var $ul = $("<ul />");
-		$.each(ovent.fleets, function(key, fleet) {
-			var $li = $("<li />");
-			var str = "";
-			var own = (WotHeader.currentPlanetData.planet.ownerId == fleet.ownerId);
+	oventParser: {
+		text: function(ovent) {
+			var $ul = $("<ul />");
+			$.each(ovent.fleets, function(key, fleet) {
+				var $li = $("<li />");
+				var str = "";
+				var own = (WotHeader.currentPlanetData.planet.ownerId == fleet.ownerId);
+				
+				$li.addClass(own ? "own" : "foreign");
+				$li.addClass(fleet.cssClass);
+				$li.addClass(fleet.passage);
+				
+				$li.append("Eine ");
+				
+				if(own)
+					$li.append("deiner Flotten");
+				else if(fleet.missionId == 1 || fleet.missionId == 11) // TODO modularise
+					$li.append("feindliche Flotte");
+				else
+					$li.append("fremde Flotte");
+				
+				$li.append(" vom ");
+				
+				$li.append(WotLib.formatPlanet({
+						coords: fleet.startCoords,
+						name: fleet.startPlanetName,
+						planetId: fleet.startPlanetId,
+						ownerId: fleet.ownerId
+					}, { dative: true }));
+				
+				if(fleet.passage == "flight")
+					$li.append(" erreicht den ");
+				else if(fleet.passage == "return")
+					$li.append(" kehrt vom ");
+				else // standBy
+					$li.append(" beginnt ihren Rückflug vom ");
+				
+				$li.append(WotLib.formatPlanet({
+						coords: fleet.targetCoords,
+						name: fleet.targetPlanetName,
+						planetId: fleet.targetPlanetId,
+						ownerId: fleet.ofiaraId
+					}, { dative: true }));
+				
+				if(fleet.passage == "return")
+					$li.append(" zurück. Ihr Auftrag lautete: ");
+				else // flight, standBy
+					$li.append(". Ihr Auftrag lautet: ");
+				
+				$li.append(WotFleet.getMissionName(fleet.missionId));
+				
+				
+				$ul.append($li);
+			});
 			
-			$li.addClass(own ? "own" : "foreign");
-			$li.addClass(fleet.cssClass);
-			$li.addClass(fleet.passage);
+			return $ul;
+		},
+		details: function(ovent) {
+			var $container = $("<ul />");
 			
-			$li.append("Eine ");
+			ovent.fleets.forEach(function(fleet) {
+				var $elem = $("<li />");
+				
+				var $ships = $("<p />");
+				$ships.append("<b>Schiffe</b>: ");
+				var $list = $("<ul class=\"oventFleetSpecs\" />");
+				$.each(fleet.specs, function(specId, count) {
+					$list.append($("<li />").append(count + " " + WotLib.getSpecName(specId)));
+				});
+				$ships.append($list);
+				$elem.append($ships);
+				
+				var $resources = $("<p />");
+				$resources.append("<b>Rohstoffe</b>: ");
+				var text;
+				switch(true) {
+				case fleet.resources.metal > 0 && fleet.resources.crystal > 0 && fleet.resources.deuterium > 0:
+					text = fleet.resources.metal + " Metall, " +
+							fleet.resources.crystal + " Kristall und " +
+							fleet.resources.deuterium + " Deuterium";
+					break;
+				case fleet.resources.metal > 0 && fleet.resources.crystal > 0:
+					text = fleet.resources.metal + " Metall und " +
+							fleet.resources.crystal + " Kristall";
+					break;
+				case fleet.resources.metal > 0 && fleet.resources.deuterium > 0:
+					text = fleet.resources.metal + " Metall und " +
+							fleet.resources.deuterium + " Deuterium";
+					break;
+				case fleet.resources.crystal > 0 && fleet.resources.deuterium > 0:
+					text = fleet.resources.crystal + " Kristall und " +
+							fleet.resources.deuterium + " Deuterium";
+					break;
+				case fleet.resources.metal > 0:
+					text = fleet.resources.metal + " Metall";
+					break;
+				case fleet.resources.crystal > 0:
+					text = fleet.resources.crystal + " Kristall";
+					break;
+				case fleet.resources.deuterium > 0:
+					text = fleet.resources.deuterium + " Deuterium";
+					break;
+				default:
+					text = "Keine Rohstoffe";
+				}
+				if(text) {
+					$resources.append($("<span />").text(text));
+					$elem.append($resources);
+				}
+				
+				$container.append($elem);
+			});
 			
-			if(own)
-				$li.append("deiner Flotten");
-			else if(fleet.missionId == 1 || fleet.missionId == 11) // TODO modularise
-				$li.append("feindliche Flotte");
-			else
-				$li.append("fremde Flotte");
-			
-			$li.append(" vom ");
-			
-			$li.append(WotLib.formatPlanet({
-					coords: fleet.startCoords,
-					name: fleet.startPlanetName,
-					planetId: fleet.startPlanetId,
-					ownerId: fleet.ownerId
-				}, { dative: true }));
-			
-			if(fleet.passage == "flight")
-				$li.append(" erreicht den ");
-			else if(fleet.passage == "return")
-				$li.append(" kehrt vom ");
-			else // standBy
-				$li.append(" beginnt ihren Rückflug vom ");
-			
-			$li.append(WotLib.formatPlanet({
-					coords: fleet.targetCoords,
-					name: fleet.targetPlanetName,
-					planetId: fleet.targetPlanetId,
-					ownerId: fleet.ofiaraId
-				}, { dative: true }));
-			
-			if(fleet.passage == "return")
-				$li.append(" zurück. Ihr Auftrag lautete: ");
-			else // flight, standBy
-				$li.append(". Ihr Auftrag lautet: ");
-			
-			$li.append(WotFleet.getMissionName(fleet.missionId));
-			
-			
-			$ul.append($li);
-		});
-		
-		return $ul;
+			return $container;
+		}
 	},
 	
 	// galaxy
