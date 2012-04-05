@@ -60,7 +60,7 @@ var WotFleetstartDetails = {
 			$startContainer.find("input, select").unbind("change").change(function() {
 				WotFleetstartDetails.page.render($container, $startContainer);
 			});
-		},
+		}
 	},
 	
 	Calculator: function($container) {
