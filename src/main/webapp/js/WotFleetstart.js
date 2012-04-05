@@ -14,10 +14,10 @@ var WotFleetstart = {
 				.append($("<div />")
 					.append("<input type=\"number\" id=\"coordinatesGalaxy\" name=\"coordinates.galaxy\" size=\"2\" value=\"0\" min=\"1\" max=\"4\" />")
 					.append(":")
-					.append("<input type=\"number\" name=\"coordinates.system\" size=\"3\" value=\"0\" min=\"1\" max=\"499\" />")
+					.append("<input type=\"number\" id=\"coordinatesSystem\" name=\"coordinates.system\" size=\"3\" value=\"0\" min=\"1\" max=\"499\" />")
 					.append(":")
-					.append("<input type=\"number\"name=\"coordinates.orbit\" size=\"3\" value=\"0\" min=\"1\" max=\"15\" />")
-					.append("<select name=\"coordinates.kind\"><option value=\"1\">Planet</option>"
+					.append("<input type=\"number\" id=\"coordinatesOrbit\" name=\"coordinates.orbit\" size=\"3\" value=\"0\" min=\"1\" max=\"15\" />")
+					.append("<select id=\"coordinatesKind\" name=\"coordinates.kind\"><option value=\"1\">Planet</option>"
 							+ "<option value=\"2\">TF</option><option value=\"3\">Mond</option></select>")));
 		
 		var opts = "";
@@ -30,12 +30,12 @@ var WotFleetstart = {
 		
 		opts = "";
 		$.each(WotFleet.missions, function(missionId, name) {
-			opts += "<label><input type=\"radio\" name=\"missionId\" value=\"" + missionId + "\" />" + name + "</label>";
+			opts += "<option value=\"" + missionId + "\">" + name + "</option>";
 		});
 		$form.append(
 				$("<div class=\"mission\" />")
-				.append("<label>Auftrag</label>")
-				.append("<div>" + opts + "</div>"));
+				.append("<label for=\"missionId\">Auftrag</label>")
+				.append("<div><select name=\"missionId\" id=\"missionId\">" + opts + "</select></div>"));
 		$.each({"metal": "Metal", "crystal": "Crystal", "deuterium" : "Deuterium"}, function(lower, upper) {
 			var name = WotLib.getResourceName(lower);
 			$form.append(
@@ -64,26 +64,43 @@ var WotFleetstart = {
 	
 	render: function($container) {
 		var $specs = $container.find(".fleetstartSpecs");
-		$specs.empty();
 		
-		$.each(WotFleetstart.specs, function(specId, count) {
+		$.each(WotFleetstartDetails.specs, function(specId, data) {
+			var count = WotFleetstart.specs[specId];
 			var id = "levels"+ specId;
-			var $li = $("<li />")
-				.append($("<label />")
-					.attr("for", id)
-					.text(WotLib.getSpecName(specId)))
-				.append($("<div />")
-					.append($("<input type=\"number\" size=\"6\" min=\"0\" />")
-						.attr("name", "levels["+ specId + "]")
-						.attr("id", id)
-						.attr("max", count)
-						.val(0))
-					.append($("<span class=\"inline-help\" />")
-						.click(function() {
-							$("#" + id).val($("#" + id).val() == 0 ? count : 0);
-						})
-						.text("(" + count + ")")));
-			$specs.append($li);
+			var sid = "#" + id;
+			
+			if(!count) {
+				$(sid).remove();
+			}
+			else if($(sid).size()) {
+				$(sid).attr("max", count);
+				$(sid).parent().find("span.inline-help")
+					.unbind("click")
+					.click(function() {
+						$(sid).val($(sid).val() == 0 ? count : 0);
+					})
+					.text("(" + count + ")");
+			}
+			else {
+				var $li = $("<li />")
+					.append($("<label />")
+						.attr("for", id)
+						.text(WotLib.getSpecName(specId)))
+					.append($("<div />")
+						.append($("<input type=\"number\" size=\"6\" min=\"0\" />")
+							.attr("name", "levels["+ specId + "]")
+							.attr("id", id)
+							.attr("max", parseInt(count))
+							.data("specId", specId)
+							.val(0))
+						.append($("<span class=\"inline-help\" />")
+							.click(function() {
+								$(sid).val($(sid).val() == 0 ? count : 0);
+							})
+							.text("(" + count + ")")));
+				$specs.append($li);
+			}
 		});
 		
 		if(WotFleetstart.specs == null || WotFleetstart.specs == []) {
@@ -93,6 +110,15 @@ var WotFleetstart = {
 		$.each({"metal": "Metal", "crystal": "Crystal", "deuterium" : "Deuterium"}, function(lower, upper) {
 			$(".fleetstart"+upper+" .inline-help").text("(" + WotLib.formatNumberShort(WotHeader.currentPlanetData[lower]) + ")");
 			$("#resourceCounts"+upper).attr("max", WotHeader.currentPlanetData[lower]);
+		});
+		
+		WotSwiper.showRight({
+			page: "fleetstartDetails",
+			renderArgs: [$container],
+			changeCenter: false,
+			swapCenter: false,
+			swapLevel: 0.2,
+			maxSwipe: 0.9
 		});
 	},
 	

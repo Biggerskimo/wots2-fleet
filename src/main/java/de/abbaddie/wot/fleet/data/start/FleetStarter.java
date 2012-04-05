@@ -15,7 +15,6 @@ import de.abbaddie.wot.data.resource.ResourceValueSet;
 import de.abbaddie.wot.data.spec.SpecContainer;
 import de.abbaddie.wot.fleet.data.mission.Mission;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
-import de.abbaddie.wot.fleet.data.spec.trait.FleetBound.FleetDrive;
 
 public interface FleetStarter extends CoordinatesContainer, ResourceContainer, SpecContainer<FleetBound> {
 	@Transactional
@@ -36,8 +35,6 @@ public interface FleetStarter extends CoordinatesContainer, ResourceContainer, S
 	public int getDistance();
 	
 	public Duration getDuration();
-	
-	public FleetDrive getPreferredDrive(List<FleetDrive> drives);
 	
 	public int getSpeed();
 	

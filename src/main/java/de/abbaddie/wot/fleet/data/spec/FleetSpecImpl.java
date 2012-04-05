@@ -41,6 +41,11 @@ public abstract class FleetSpecImpl extends SpecImpl implements FleetBound {
 			this.predicate = predicate;
 		}
 		
+		@Override
+		public FleetDrivePredicate getPredicate() {
+			return predicate;
+		}
+		
 		protected boolean isUsable(SpecSet<?> technologies) {
 			SpecPredicate searchedTech = predicate.getDriveSpec();
 			

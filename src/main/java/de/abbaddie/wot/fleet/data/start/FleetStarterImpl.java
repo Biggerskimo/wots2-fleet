@@ -50,6 +50,7 @@ import de.abbaddie.wot.fleet.data.mission.MissionRoute;
 import de.abbaddie.wot.fleet.data.ovent.FleetOventService;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 import de.abbaddie.wot.fleet.data.spec.trait.FleetBound.FleetDrive;
+import de.abbaddie.wot.fleet.lib.FleetUtil;
 
 @Service("default")
 @Scope("prototype")
@@ -245,7 +246,7 @@ public class FleetStarterImpl implements FleetStarter {
 		double globalFactor = Integer.valueOf(config.get("fleet_speed")) / 2500;
 		
 		for(FleetBound spec : specs.filter(new PositiveFilter())) {
-			FleetDrive drive = getPreferredDrive(spec.getDrives(startPlanet.getOwner().getSpecs()));
+			FleetDrive drive = FleetUtil.getPreferredDrive(spec.getDrives(startPlanet.getOwner().getSpecs()));
 			int specSpeed = drive.getSpeed();
 			double consumption = drive.getConsumption();
 			
@@ -286,22 +287,10 @@ public class FleetStarterImpl implements FleetStarter {
 	}
 	
 	@Override
-	public FleetDrive getPreferredDrive(List<FleetDrive> drives) {
-		FleetDrive best = null;
-		
-		for(FleetDrive current : drives) {
-			if(best == null || current.getSpeed() > best.getSpeed()) {
-				best = current;
-			}
-		}
-		return best;
-	}
-	
-	@Override
 	public int getSpeed() {
 		int speed = Integer.MAX_VALUE;
 		for(FleetBound spec : specs.filter(new PositiveFilter())) {
-			FleetDrive drive = getPreferredDrive(spec.getDrives(startPlanet.getOwner().getSpecs()));
+			FleetDrive drive = FleetUtil.getPreferredDrive(spec.getDrives(startPlanet.getOwner().getSpecs()));
 			if(drive == null) {
 				throw new IllegalStateException("found a ship without drive");
 			}

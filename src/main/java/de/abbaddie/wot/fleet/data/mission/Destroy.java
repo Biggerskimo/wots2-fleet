@@ -14,7 +14,8 @@ public class Destroy extends Mission {
 	
 	@Override
 	public String validate(FleetStarter starter) {
-		if(starter.getStartPlanet().getOwner() == starter.getTargetPlanet().getOwner()) {
+		if(starter.getTargetPlanet() == null
+				|| starter.getStartPlanet().getOwner() == starter.getTargetPlanet().getOwner()) {
 			return "Du kannst dich nicht selbst Angreifen.";
 		}
 		
