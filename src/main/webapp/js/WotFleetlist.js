@@ -57,7 +57,7 @@ var WotFleetlist = {
 									WotFleetlist.cancel(fleet.fleetId);
 								})
 								.text("Zurückziehen"))))));
-			$li.click(function(e) {
+			$li.fastClick(function(e) {
 				WotFleetlist.toggleDetails.call($li, fleet);
 			});
 			$fleetUl.append($li);
