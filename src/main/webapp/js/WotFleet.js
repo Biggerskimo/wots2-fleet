@@ -128,7 +128,7 @@ var WotFleet = {
 	// galaxy
 	scanActionProvider: function(row) {
 		var $button = $("<li class=\"scan\" />");
-		$button.click(function() {
+		$button.fastClick(function() {
 			WotFleet.scan(row.kinds[1].planetId, row.coords);
 		});
 		

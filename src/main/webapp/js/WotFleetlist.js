@@ -53,7 +53,7 @@ var WotFleetlist = {
 					.append($("<ul class=\"menuActions\" />")
 						.append($("<li />")
 							.append($("<a href=\"javascript:void(0);\" />").append($("<span />")
-								.click(function() {
+								.fastClick(function() {
 									WotFleetlist.cancel(fleet.fleetId);
 								})
 								.text("Zurückziehen"))))));
