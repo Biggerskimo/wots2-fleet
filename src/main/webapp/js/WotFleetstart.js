@@ -122,6 +122,12 @@ var WotFleetstart = {
 		});
 	},
 	
+	planetChangeHook: function(part) {
+		if(WotHandler.currentPage == "fleetstart") {
+			WotHandler.rerender(true);
+		}
+	},
+	
 	fleetstartHandler: function(data) {
 		WotFleetstart.specs = data.specs;
 	},
@@ -137,7 +143,7 @@ var WotFleetstart = {
 	}
 };
 WotHandler.addModule("fleetstart", {
-	requestHandler: { fleetstart: WotFleetstart.fleetstartHandler },
+	requestHandler: { fleetstart: WotFleetstart.fleetstartHandler, planetChange: WotFleetstart.planetChangeHook },
 	navigationLink: {
 		Flottenstart: "fleetstart" },
 	page: { fleetstart: WotFleetstart }
