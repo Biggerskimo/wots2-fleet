@@ -71,7 +71,7 @@ var WotFleetstart = {
 			var sid = "#" + id;
 			
 			if(!count) {
-				$(sid).remove();
+				$(sid).closest("li").remove();
 			}
 			else if($(sid).size()) {
 				$(sid).attr("max", count);
@@ -103,8 +103,8 @@ var WotFleetstart = {
 			}
 		});
 		
-		if(WotFleetstart.specs == null || WotFleetstart.specs == []) {
-			WotLib.addActionResult("warning", ["Es sind keine Schiffe vorhanden!"]);
+		if(WotFleetstart.specs == null || $.isEmptyObject(WotFleetstart.specs)) {
+			WotLib.addActionResult("warning", ["Es sind keine Schiffe vorhanden!"], true);
 		}
 		
 		$.each({"metal": "Metal", "crystal": "Crystal", "deuterium" : "Deuterium"}, function(lower, upper) {
