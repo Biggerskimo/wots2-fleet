@@ -103,8 +103,9 @@ var WotFleetstart = {
 			}
 		});
 		
+		WotLib.eraseActionResult();
 		if(WotFleetstart.specs == null || $.isEmptyObject(WotFleetstart.specs)) {
-			WotLib.addActionResult("warning", ["Es sind keine Schiffe vorhanden!"], true);
+			WotLib.addActionResult("warning", ["Es sind keine Schiffe vorhanden!"]);
 		}
 		
 		$.each({"metal": "Metal", "crystal": "Crystal", "deuterium" : "Deuterium"}, function(lower, upper) {
