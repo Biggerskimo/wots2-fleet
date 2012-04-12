@@ -14,6 +14,7 @@ var WotFleetlist = {
 	refreshAndRender: function($container) {
 		WotRequest.start("fleetlist", null, function() {
 			WotHandler.render($container, "fleetlist", false);
+			WotHandler.fixHash();
 		});
 		WotHandler.render($container, "fleetlist", false);
 	},

@@ -58,6 +58,7 @@ var WotFleetstart = {
 	refreshAndRender: function($container) {
 		WotRequest.start("fleetstart", null, function() {
 			WotHandler.render($container, "fleetstart", false);
+			WotHandler.fixHash();
 		});
 		WotHandler.render($container, "fleetstart", false);
 	},
