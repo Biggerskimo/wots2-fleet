@@ -6,9 +6,11 @@ import java.util.Queue;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
-import de.abbaddie.wot.config.Config;
 import de.abbaddie.wot.data.planet.Planet;
 import de.abbaddie.wot.data.planet.Producer;
 import de.abbaddie.wot.data.spec.Spec;
@@ -16,77 +18,22 @@ import de.abbaddie.wot.data.spec.SpecRepository;
 import de.abbaddie.wot.data.spec.SpecSet;
 import de.abbaddie.wot.fleet.data.spec.trait.HangarProductionCatalyst;
 
-@Component
+@Service
+@DependsOn("config")
+@Lazy
 public class HangarProducer implements Producer {
-	protected Planet planet;
-	protected Queue<HangarJob> jobs;
-	protected Duration offset;
-	protected double speedFactor;
-	
-	@Autowired
-	protected Config config;
+	@Value("${factor.construction.hangar}")
+	protected double globalFactor;
 	
 	@Autowired
 	protected SpecRepository specRepo;
 	
-	@Override
-	public void setPlanet(Planet planet) {
-		this.planet = planet;
-		
-		loadJobs();
-		if(planet.get("b_hangar") != null) {
-			offset = new Duration((long) (int) planet.get("b_hangar") * 1000);
-		} else {
-			offset = new Duration(0);
-		}
-		
-		speedFactor = 1d;
-		speedFactor *= Double.parseDouble(config.get("game_speed")) / 2500;
-		
-		SpecSet<HangarProductionCatalyst> catalysts = planet.getSpecs().filter(HangarProductionCatalyst.class);
-		for(HangarProductionCatalyst catalyst : catalysts) {
-			speedFactor *= catalyst.getHangarCatalysation();
-		}
-	}
-	
-	public Planet getPlanet() {
-		return planet;
-	}
-	
-	public double getSpeedFactor() {
-		return speedFactor;
-	}
-	
-	@Override
-	public void produce(DateTime start, DateTime end) {
-		if(jobs.isEmpty()) {
-			return;
-		}
-		
-		// produce
-		Duration dur = new Duration(start, end).plus(offset);
-		
-		HangarJob job = jobs.peek();
-		dur = job.work(dur);
-		
-		while(job.isFinished()) {
-			jobs.remove();
-			job = jobs.peek();
-			dur = job.work(dur);
-		}
-		offset = dur;
-		
-		// save
-		saveJobs();
-		planet.set("b_hangar", offset.getMillis() / 1000);
-	}
-	
-	public void loadJobs() {
-		String all = (String) planet.get("b_hangar_id");
-		jobs = new LinkedList<>();
+	public Queue<HangarJob> loadJobs(Planet planet) {
+		String all = (String) planet.get("hangar_jobs");
+		Queue<HangarJob> jobs = new LinkedList<>();
 		
 		if(all == null || all.isEmpty()) {
-			return;
+			return jobs;
 		}
 		
 		String[] parts = all.split(";");
@@ -100,17 +47,62 @@ public class HangarProducer implements Producer {
 			
 			Spec spec = planet.getSpecs().get(specRepo.findOne(specId));
 			
-			jobs.add(new HangarJob(this, spec, count));
+			jobs.add(new HangarJob(spec, count));
 		}
+		
+		return jobs;
 	}
 	
-	public void saveJobs() {
+	public void saveJobs(Planet planet, Queue<HangarJob> jobs) {
 		String str = "";
 		
 		for(HangarJob job : jobs) {
 			str += job.toString();
 		}
 		
-		planet.set("b_hangar_id", str);
+		planet.set("hangar_jobs", str);
+	}
+	
+	@Override
+	public void produce(Planet planet, DateTime start, DateTime end) {
+		// load jobs
+		Queue<HangarJob> jobs = loadJobs(planet);
+		
+		// load duration
+		Duration offset;
+		if(planet.get("hangar_offset") != null) {
+			offset = new Duration(planet.get("hangar_offset"));
+		} else {
+			offset = new Duration(0);
+		}
+		
+		// load speed
+		double speedFactor = globalFactor;
+		
+		SpecSet<HangarProductionCatalyst> catalysts = planet.getSpecs().filter(HangarProductionCatalyst.class);
+		for(HangarProductionCatalyst catalyst : catalysts) {
+			speedFactor *= catalyst.getHangarCatalysation();
+		}
+		
+		// produce
+		if(jobs.isEmpty()) {
+			return;
+		}
+		
+		Duration dur = new Duration(start, end).plus(offset);
+		
+		HangarJob job = jobs.peek();
+		dur = job.work(dur, speedFactor);
+		
+		while(job.isFinished()) {
+			jobs.remove();
+			job = jobs.peek();
+			dur = job.work(dur, speedFactor);
+		}
+		offset = dur;
+		
+		// save
+		saveJobs(planet, jobs);
+		planet.set("hangar_offset", offset.getMillis() / 1000);
 	}
 }

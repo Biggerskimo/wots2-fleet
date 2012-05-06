@@ -4,7 +4,7 @@ import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.SpecImpl;
 import de.abbaddie.wot.data.spec.trait.Technology;
 
-@SpecComponent(specId = 115)
+@SpecComponent(name = "combustiondrive")
 public class CombustionDrive extends SpecImpl implements Technology {
 	
 }

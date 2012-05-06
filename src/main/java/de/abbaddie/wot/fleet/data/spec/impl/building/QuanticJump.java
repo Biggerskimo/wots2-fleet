@@ -4,7 +4,7 @@ import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.SpecImpl;
 import de.abbaddie.wot.data.spec.trait.Building;
 
-@SpecComponent(specId = 43)
+@SpecComponent(name = "quanticjump")
 public class QuanticJump extends SpecImpl implements Building {
 	
 }

@@ -4,7 +4,7 @@ import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.SpecImpl;
 import de.abbaddie.wot.data.spec.trait.Technology;
 
-@SpecComponent(specId = 110)
+@SpecComponent(name = "shieldingtech")
 public class ShieldingTechnology extends SpecImpl implements Technology {
 	
 }

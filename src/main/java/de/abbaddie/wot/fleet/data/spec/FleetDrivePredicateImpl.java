@@ -14,15 +14,15 @@ import de.abbaddie.wot.data.spec.SpecPredicate;
 import de.abbaddie.wot.data.spec.SpecPredicateImpl;
 
 @Entity
-@Table(name = "ugml_spec_drive")
+@Table(name = "spec_drive")
 public class FleetDrivePredicateImpl implements FleetDrivePredicate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "specDriveID")
+	@Column(name = "specDriveId")
 	protected int id;
 	
 	@ManyToOne(targetEntity = SpecPredicateImpl.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "specID")
+	@JoinColumn(name = "specId")
 	protected SpecPredicate fleetSpec;
 	
 	@ManyToOne(targetEntity = SpecPredicateImpl.class)

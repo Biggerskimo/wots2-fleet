@@ -12,9 +12,8 @@ import de.abbaddie.wot.data.resource.Resources;
 import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.trait.Producing;
 import de.abbaddie.wot.fleet.data.spec.FleetSpecImpl;
-import de.abbaddie.wot.fleet.data.spec.FleetSpecPredicateAddition;
 
-@SpecComponent(specId = 212, additions = FleetSpecPredicateAddition.class)
+@SpecComponent(name = "solarsatellite")
 public class SolarSatellite extends FleetSpecImpl implements Producing {
 	@Override
 	public ResourceValueSet getProduction() {

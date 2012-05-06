@@ -46,34 +46,33 @@ import de.abbaddie.wot.fleet.data.spec.trait.FleetBound;
 
 @Configurable
 @Entity
-@Table(name = "ugml_fleet")
-// TODO besseres decoupling der planeten/events?
-class FleetImpl implements EditableFleet {
+@Table(name = "fleet")
+public class FleetImpl implements EditableFleet {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "fleetID")
+	@Column(name = "fleetId")
 	protected int id;
 	
-	@Column(name = "ownerID")
+	@Column(name = "ownerId")
 	protected int ownerId;
 	
-	@Column(name = "ofiaraID")
+	@Column(name = "ofiaraId")
 	protected Integer ofiaraId;
 	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = PlanetImpl.class)
-	@JoinColumn(name = "startPlanetID")
+	@JoinColumn(name = "startPlanetId")
 	protected Planet startPlanet;
 	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = PlanetImpl.class)
-	@JoinColumn(name = "targetPlanetID")
+	@JoinColumn(name = "targetPlanetId")
 	protected Planet targetPlanet;
 	
 	@OneToMany(cascade = CascadeType.ALL)
 	@MapKey(name = "spec")
-	@JoinColumn(name = "fleetID")
+	@JoinColumn(name = "fleetId")
 	protected Map<SpecPredicate, FleetSpec> specs = new HashMap<>();
 	
-	@Column(name = "missionID")
+	@Column(name = "missionId")
 	protected int missionId;
 	
 	protected long metal;
@@ -87,11 +86,11 @@ class FleetImpl implements EditableFleet {
 	protected int returnTime;
 	
 	@OneToOne(targetEntity = EventImpl.class)
-	@JoinColumn(name = "impactEventID")
+	@JoinColumn(name = "impactEventId")
 	protected Event impactEvent;
 	
 	@OneToOne(targetEntity = EventImpl.class)
-	@JoinColumn(name = "returnEventID")
+	@JoinColumn(name = "returnEventId")
 	protected Event returnEvent;
 	
 	protected transient SpecSet<FleetBound> specSet;

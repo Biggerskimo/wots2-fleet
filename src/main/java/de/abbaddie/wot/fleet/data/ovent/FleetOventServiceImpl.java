@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.abbaddie.wot.data.ovent.EditableOvent;
 import de.abbaddie.wot.data.ovent.OventRepository;
 import de.abbaddie.wot.fleet.data.fleet.DefaultEventTypes;
 import de.abbaddie.wot.fleet.data.fleet.Fleet;
-import de.abbaddie.wot.fleet.data.ovent.FleetOventNature.FleetOventFleet;
+import de.abbaddie.wot.fleet.data.ovent.FleetOventImpl.FleetOventFleet;
 
 @Service
 public class FleetOventServiceImpl implements FleetOventService {
@@ -32,42 +31,39 @@ public class FleetOventServiceImpl implements FleetOventService {
 	
 	protected void createImpactOwner(Fleet fleet) {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, true);
-		EditableOvent ovent = oventRepo.create();
+		FleetOventImpl ovent = oventRepo.create(FleetOventImpl.class);
 		
 		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.IMPACT).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.IMPACT));
 		ovent.setPlanet(fleet.getTargetPlanet());
 		ovent.setUser(fleet.getStartPlanet().getOwner());
-		ovent.setRelationalId(fleet.getId());
-		ovent.setNature(new FleetOventNature(ofleet));
+		ovent.setFleet(ofleet);
 		
 		oventRepo.update(ovent);
 	}
 	
 	protected void createImpactOfiara(Fleet fleet) {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, false);
-		EditableOvent ovent = oventRepo.create();
+		FleetOventImpl ovent = oventRepo.create(FleetOventImpl.class);
 		
 		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.IMPACT).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.IMPACT));
 		ovent.setPlanet(fleet.getTargetPlanet());
 		ovent.setUser(fleet.getTargetPlanet().getOwner());
-		ovent.setRelationalId(fleet.getId());
-		ovent.setNature(new FleetOventNature(ofleet));
+		ovent.setFleet(ofleet);
 		
 		oventRepo.update(ovent);
 	}
 	
 	protected void createReturnOwner(Fleet fleet) {
 		FleetOventFleet ofleet = createFleetOventFleet(fleet, true);
-		EditableOvent ovent = oventRepo.create();
+		FleetOventImpl ovent = oventRepo.create(FleetOventImpl.class);
 		
 		ovent.setTime(fleet.getEvents().get(DefaultEventTypes.RETURN).getTime());
 		ovent.setEvent(fleet.getEvents().get(DefaultEventTypes.RETURN));
 		ovent.setPlanet(fleet.getStartPlanet());
 		ovent.setUser(fleet.getStartPlanet().getOwner());
-		ovent.setRelationalId(fleet.getId());
-		ovent.setNature(new FleetOventNature(ofleet));
+		ovent.setFleet(ofleet);
 		
 		oventRepo.update(ovent);
 	}

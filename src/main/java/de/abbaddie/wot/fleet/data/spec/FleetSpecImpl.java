@@ -13,8 +13,21 @@ public abstract class FleetSpecImpl extends SpecImpl implements FleetBound {
 	protected List<FleetDrive> drives;
 	
 	@Override
+	public FleetSpecPredicateImpl getPredicate() {
+		return (FleetSpecPredicateImpl) super.getPredicate();
+	}
+	
+	@Override
+	public void setPredicate(SpecPredicate predicate) {
+		if(!(predicate instanceof FleetSpecPredicateImpl)) {
+			throw new IllegalArgumentException();
+		}
+		super.setPredicate(predicate);
+	}
+	
+	@Override
 	public List<FleetDrive> getDrives(SpecSet<?> technologies) {
-		List<FleetDrivePredicate> available = predicate.getAddition(FleetSpecPredicateAddition.class).getDrives();
+		List<FleetDrivePredicate> available = getPredicate().getDrives();
 		List<FleetDrive> drives = new ArrayList<>(available.size());
 		
 		for(FleetDrivePredicate drivePredicate : available) {
@@ -29,7 +42,7 @@ public abstract class FleetSpecImpl extends SpecImpl implements FleetBound {
 	
 	@Override
 	public double getCapacity() {
-		return getPredicate().getAddition(FleetSpecPredicateAddition.class).getCapacity() * getCount();
+		return getPredicate().getCapacity() * getCount();
 	}
 	
 	protected class FleetDriveImpl implements FleetDrive {

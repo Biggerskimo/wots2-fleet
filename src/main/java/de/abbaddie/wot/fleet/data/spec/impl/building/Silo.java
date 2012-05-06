@@ -4,7 +4,7 @@ import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.SpecImpl;
 import de.abbaddie.wot.data.spec.trait.Building;
 
-@SpecComponent(specId = 44)
+@SpecComponent(name = "silo")
 public class Silo extends SpecImpl implements Building {
 	
 }

@@ -1,7 +1,6 @@
 package de.abbaddie.wot.fleet.data.start;
 
 import java.util.List;
-import java.util.Map;
 
 import org.joda.time.Duration;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,13 +41,9 @@ public interface FleetStarter extends CoordinatesContainer, ResourceContainer, S
 	
 	public Planet getTargetPlanet();
 	
-	public Map<String, String> getLevels();
-	
 	public Mission getMission();
 	
 	public int getMissionId();
-	
-	public Map<String, String> getResourceCounts();
 	
 	public double getSpeedFactor();
 	

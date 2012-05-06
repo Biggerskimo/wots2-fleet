@@ -2,8 +2,7 @@ package de.abbaddie.wot.fleet.data.spec.impl.fleet;
 
 import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.fleet.data.spec.FleetSpecImpl;
-import de.abbaddie.wot.fleet.data.spec.FleetSpecPredicateAddition;
 
-@SpecComponent(specId = 204, additions = FleetSpecPredicateAddition.class)
+@SpecComponent(name = "lightfighter")
 public class LightFighter extends FleetSpecImpl {
 }

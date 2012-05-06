@@ -1,9 +1,7 @@
 package de.abbaddie.wot.fleet.data.start;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -25,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import de.abbaddie.wot.config.Config;
 import de.abbaddie.wot.data.coordinates.Coordinates;
 import de.abbaddie.wot.data.coordinates.DynamicCoordinates;
-import de.abbaddie.wot.data.event.EditableEvent;
 import de.abbaddie.wot.data.event.EventRepository;
 import de.abbaddie.wot.data.planet.EditablePlanet;
 import de.abbaddie.wot.data.planet.Planet;
@@ -38,9 +35,8 @@ import de.abbaddie.wot.data.resource.ResourceValueSet;
 import de.abbaddie.wot.data.resource.Resources;
 import de.abbaddie.wot.data.spec.SpecRepository;
 import de.abbaddie.wot.data.spec.SpecSet;
-import de.abbaddie.wot.data.spec.Specs;
 import de.abbaddie.wot.data.spec.filter.PositiveFilter;
-import de.abbaddie.wot.fleet.data.event.FleetEventExecutor;
+import de.abbaddie.wot.fleet.data.event.FleetEventImpl;
 import de.abbaddie.wot.fleet.data.fleet.DefaultEventTypes;
 import de.abbaddie.wot.fleet.data.fleet.EditableFleet;
 import de.abbaddie.wot.fleet.data.fleet.FleetRepository;
@@ -84,10 +80,8 @@ public class FleetStarterImpl implements FleetStarter {
 	protected EntityManager em;
 	
 	protected SpecSet<FleetBound> specs;
-	protected Map<String, String> levels;
 	
 	protected ResourceValueSet resourceSet;
-	protected Map<String, String> resourceCounts;
 	
 	@NotNull(message = "Es wurde kein Startplanet gesetzt.")
 	protected Planet startPlanet;
@@ -103,18 +97,14 @@ public class FleetStarterImpl implements FleetStarter {
 	protected int missionId;
 	
 	public FleetStarterImpl() {
-		levels = new HashMap<>();
-		
-		resourceCounts = new HashMap<>();
-		resourceSet = Resources.generateDynamic(getAllowedResourcePredicates(),
-				Resources.convertToHardByStr(resourceCounts));
+		resourceSet = Resources.generateDynamic(getAllowedResourcePredicates());
 		
 		coordinates = new FleetStartCoordinates(0, 0, 0, 0);
 	}
 	
 	@PostConstruct
 	protected void postConstruct() {
-		specs = specRepo.getDynamicSpecSet(Specs.convertToHardByStr(levels)).filter(FleetBound.class);
+		specs = specRepo.getDynamicSpecSet().filter(FleetBound.class);
 	}
 	
 	// fire
@@ -140,14 +130,12 @@ public class FleetStarterImpl implements FleetStarter {
 		
 		DateTime now = DateTime.now();
 		
-		EditableEvent impactEvent = eventRepo.create();
+		FleetEventImpl impactEvent = eventRepo.create(FleetEventImpl.class);
 		impactEvent.setTime(now.withDurationAdded(getDuration(), 1));
-		impactEvent.setExecutor(FleetEventExecutor.class);
 		eventRepo.update(impactEvent);
 		
-		EditableEvent returnEvent = eventRepo.create();
+		FleetEventImpl returnEvent = eventRepo.create(FleetEventImpl.class);
 		returnEvent.setTime(now.withDurationAdded(getDuration(), 2));
-		returnEvent.setExecutor(FleetEventExecutor.class);
 		eventRepo.update(returnEvent);
 		
 		em.flush();
@@ -165,10 +153,10 @@ public class FleetStarterImpl implements FleetStarter {
 		
 		em.flush();
 		
-		impactEvent.setRelationalId(fleet.getId());
+		impactEvent.setFleet(fleet);
 		eventRepo.update(impactEvent);
 		
-		returnEvent.setRelationalId(fleet.getId());
+		returnEvent.setFleet(fleet);
 		eventRepo.update(returnEvent);
 		
 		oventService.createAll(fleet);
@@ -314,12 +302,6 @@ public class FleetStarterImpl implements FleetStarter {
 	}
 	
 	// simple getters
-	
-	@Override
-	public Map<String, String> getLevels() {
-		return levels;
-	}
-	
 	@Override
 	public Mission getMission() {
 		return mission;
@@ -328,11 +310,6 @@ public class FleetStarterImpl implements FleetStarter {
 	@Override
 	public int getMissionId() {
 		return missionId;
-	}
-	
-	@Override
-	public Map<String, String> getResourceCounts() {
-		return resourceCounts;
 	}
 	
 	@Override

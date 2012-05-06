@@ -31,7 +31,8 @@ public class JsonFleet {
 		
 		Planet target = fleet.getTargetPlanet();
 		if(target == null) {
-			targetPlanet = new JsonPlanet(0, 0, Planet.NO_PLANET_NAME, new JsonCoordinates(fleet.getCoordinates()));
+			targetPlanet = new JsonPlanet(0, 0, Planet.NO_PLANET_NAME, new JsonCoordinates(fleet.getCoordinates()),
+					new JsonResourceValueSet(fleet.getResources()));
 		} else {
 			targetPlanet = new JsonPlanet(fleet.getTargetPlanet());
 		}

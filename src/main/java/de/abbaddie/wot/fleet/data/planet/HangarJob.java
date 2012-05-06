@@ -6,12 +6,10 @@ import de.abbaddie.wot.data.resource.ResourceValueSet;
 import de.abbaddie.wot.data.spec.Spec;
 
 public class HangarJob {
-	protected HangarProducer hangar;
 	protected Spec spec;
 	protected int count;
 	
-	public HangarJob(HangarProducer hangar, Spec spec, int count) {
-		this.hangar = hangar;
+	public HangarJob(Spec spec, int count) {
 		this.spec = spec;
 		this.count = count;
 	}
@@ -21,8 +19,8 @@ public class HangarJob {
 		return spec.getPredicate().getId() + "," + count + ";";
 	}
 	
-	public Duration work(Duration available) {
-		Duration jobDuration = getJobDuration();
+	public Duration work(Duration available, double speedFactor) {
+		Duration jobDuration = getJobDuration(speedFactor);
 		
 		if(jobDuration.isShorterThan(available)) {
 			spec.setLevel(spec.getLevel() + count);
@@ -30,25 +28,25 @@ public class HangarJob {
 			return available.minus(jobDuration);
 		}
 		
-		int possible = (int) (available.getMillis() / getTimePerUnit().getMillis());
+		int possible = (int) (available.getMillis() / getTimePerUnit(speedFactor).getMillis());
 		spec.setLevel(spec.getLevel() + possible);
 		count -= possible;
 		
-		return available.minus(new Duration(0).withDurationAdded(getTimePerUnit(), possible));
+		return available.minus(new Duration(0).withDurationAdded(getTimePerUnit(speedFactor), possible));
 	}
 	
 	public boolean isFinished() {
 		return count == 0;
 	}
 	
-	public Duration getTimePerUnit() {
+	public Duration getTimePerUnit(double speedFactor) {
 		ResourceValueSet rvs = spec.getCosts();
 		double costs = rvs.getValue("metal") + rvs.getValue("crystal");
 		
-		return new Duration(costs / hangar.getSpeedFactor() * 3600 * 1000);
+		return new Duration(costs / speedFactor * 3600 * 1000);
 	}
 	
-	public Duration getJobDuration() {
-		return new Duration(0).withDurationAdded(getTimePerUnit(), count);
+	public Duration getJobDuration(double speedFactor) {
+		return new Duration(0).withDurationAdded(getTimePerUnit(speedFactor), count);
 	}
 }

@@ -4,7 +4,7 @@ import de.abbaddie.wot.data.spec.SpecComponent;
 import de.abbaddie.wot.data.spec.SpecImpl;
 import de.abbaddie.wot.data.spec.trait.Technology;
 
-@SpecComponent(specId = 114)
+@SpecComponent(name = "hyperspacetech")
 public class HyperspaceTechnology extends SpecImpl implements Technology {
 	
 }
